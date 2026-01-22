@@ -102,5 +102,6 @@ To run the OCR pipeline, use the `main.py` script with appropriate parameters. F
 python main.py [TO BE COMPLETED WHEN PROJECT IS FINALIZED]
 ```
 
+## Author
 
-
+Gdeterline
