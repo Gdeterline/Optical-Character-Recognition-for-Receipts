@@ -90,9 +90,9 @@ Optical-Character-Recognition-for-Receipts/
 
 **Also need to assess whether it is actually necessary to proceed to do detection and recognition separately rather than having a single model that does both tasks (depends on time available).**
 
-<ins>Note:</ins> The `notebooks/` directory contains Jupyter notebooks used for exploratory data analysis and experimentation with different models. These are not part of the main OCR pipeline but were created to understand the data, the problem, and to experiment with various approaches. They would not be included in a production deployment of the project.
+<ins>Note:</ins> The `data/` directory is included in the `.gitignore` file for two reasons. First, to avoid pushing potentially large datasets to the repository, which can overload the version control system and make cloning the repository difficult. Second, though the considered dataset is not sensitive, it could have been. Therefore, excluding the `data/` directory is of good practice, and helps prevent accidental exposure of sensitive information. Should the user wish to run the project, they would need to have the dataset available locally and place it in a created `data/` directory.
 
-<ins>Note 2:</ins> The `data/` directory is included in the `.gitignore` file for two reasons. First, to avoid pushing potentially large datasets to the repository, which can overload the version control system and make cloning the repository difficult. Second, though the considered dataset is not sensitive, it could have been. Therefore, excluding the `data/` directory is of good practice, and helps prevent accidental exposure of sensitive information
+<ins>Note 2:</ins> The `notebooks/` directory contains Jupyter notebooks used for exploratory data analysis and experimentation with different models. These are not part of the main OCR pipeline but were created to understand the data, the problem, and to experiment with various approaches. They would not be included in a production deployment of the project.
 
 ## Usage
 
