@@ -263,7 +263,7 @@ def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_met
 
 # Debug code
 if __name__ == "__main__":
-    pass
+    
 
     # Display two examples of the full cropping pipeline for report/slides
     # raw_images_dir = "data/images/"
@@ -293,38 +293,57 @@ if __name__ == "__main__":
     #     plt.savefig(f"reports/figures/cropping_pipeline_{image_filename.replace('.png','')}.png")
     #     plt.show()
     
-    # Second tryout of the full cropping pipeline
+    # Tryout of the full cropping pipeline and display intermediate results
     ### Good results with soft clustering with 'gmm' and n_clusters=2
     ### Issues: sometimes the first cropping is not enough to remove all non-receipt areas (especially true when hands are present)
+    ### => try a second cropping step on the cropped image => works better
     
-    # raw_images_dir = "data/images/"
-    # image_filename = "dev_receipt_00016.png"
-    # segmented_image, cropped_image = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2)
+    raw_images_dir = "data/images/"
+    image_filename = "dev_receipt_00003.png"
+    segmented_image, cropped_image = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2)
     
-    # # Redo the process a second time, to crop again the cropped image
-    # # save the cropped image temporarily
-    # temp_cropped_image_path = "data/_debug/temp_cropped_image.png"
-    # cv2.imwrite(temp_cropped_image_path, cropped_image)
-    # segmented_image, cropped_image = cropping_pipeline("data/_debug", "temp_cropped_image.png", segmentation_method='gmm', n_clusters=3)
-    # os.remove(temp_cropped_image_path)
+    # Adaptive binarization of the cropped image to perhaps conduct a second cropping based on contours
+    gray_cropped = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+    #binary_cropped = binarize_adaptive(gray_cropped)
     
-    # print(f"Cropped image shape: {cropped_image.shape}")
-    # # Visualize the original, segmented and cropped images in three side-by-side plots
-    # plt.figure(figsize=(8, 8))
-    # original_image = cv2.imread(os.path.join(raw_images_dir, image_filename))
-    # plt.subplot(1, 3, 1)
-    # plt.imshow(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
-    # plt.title("Original Image")
-    # plt.axis('off')
-    # plt.subplot(1, 3, 2)
-    # plt.imshow(segmented_image)
-    # plt.title("Segmented Image")
-    # plt.axis('off')
-    # plt.subplot(1, 3, 3)
-    # plt.imshow(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB))
-    # plt.title("Cropped Image")
-    # plt.axis('off')
-    # plt.show()
+    # Redo the process a second time, to crop again the cropped image
+    # save the cropped image temporarily
+    temp_cropped_image_path = "data/_debug/temp_cropped_image.png"
+    cv2.imwrite(temp_cropped_image_path, cropped_image)
+    segmented_image2, cropped_image2 = cropping_pipeline("data/_debug", "temp_cropped_image.png", segmentation_method='gmm', n_clusters=3)
+    os.remove(temp_cropped_image_path)
+    
+    print(f"Cropped image shape: {cropped_image.shape}")
+    # Visualize the original, segmented, cropped, segmented2 and cropped2 images in five side-by-side plots
+    plt.figure(figsize=(12, 8))
+    original_image = cv2.imread(os.path.join(raw_images_dir, image_filename))
+    plt.subplot(1, 5, 1)
+    plt.imshow(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
+    plt.title("Original Image")
+    plt.axis('off')
+    plt.subplot(1, 5, 2)
+    plt.imshow(segmented_image)
+    plt.title("Segmented Image")
+    plt.axis('off')
+    plt.subplot(1, 5, 3)
+    plt.imshow(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB))
+    plt.title("Cropped Image")
+    plt.axis('off')
+    plt.subplot(1, 5, 4)
+    plt.imshow(segmented_image2)
+    plt.title("Segmented Image 2")
+    plt.axis('off')
+    plt.subplot(1, 5, 5)
+    plt.imshow(cv2.cvtColor(cropped_image2, cv2.COLOR_BGR2RGB))
+    plt.title("Cropped Image 2")
+    plt.axis('off')
+    plt.suptitle("Cropping Pipeline Results with Second Cropping", fontsize=16)
+    plt.tight_layout()
+    plt.savefig(f"reports/figures/cropping_pipeline_second_cropping_{image_filename.replace('.png','')}.png")
+    plt.show()
+
+    
+    
     
     
     # First tryout of each function individually
