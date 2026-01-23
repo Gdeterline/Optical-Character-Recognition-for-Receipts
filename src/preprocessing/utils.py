@@ -378,6 +378,8 @@ if __name__ == "__main__":
     # Perform croppings on all images and save them in data/_debug, to conduct experiments on them (PCA, etc.)    
     raw_images_dir = "data/images/"
     debug_output_dir = "data/_debug/"
+    if not os.path.exists(debug_output_dir):
+        os.makedirs(debug_output_dir)
     
     image_filenames = os.listdir(raw_images_dir)
     
