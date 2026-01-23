@@ -141,6 +141,7 @@ def segment_image_gmm(image: np.ndarray, n_components: int = 2) -> np.ndarray:
     except Exception:
         # If default fitting fails (often due to singular covariance matrices on uniform images),
         # retry with a higher regularization value.
+        print("GMM fitting failed with default parameters. Retrying with higher regularization.")
         gmm = GaussianMixture(n_components=n_components, random_state=42, reg_covar=1e-4)
         gmm.fit(pixel_values)
         
@@ -387,9 +388,11 @@ if __name__ == "__main__":
         print(f"Processing image: {index+1}/{len(image_filenames)} - {image_filename}")
         if image_filename not in os.listdir(debug_output_dir):
             cropped_image, needs_second_cropping = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2, second_cropping_threshold=0.85, verbose=False)
+            if needs_second_cropping:
+                print(f"Second cropping was needed for image {image_filename}.")
             debug_image_path = os.path.join(debug_output_dir, image_filename)
             cv2.imwrite(debug_image_path, cropped_image)
-            print(f"Cropped image saved to {debug_image_path}. Second cropping needed: {needs_second_cropping}")
+            
     
     ##################################################################################################################################
     
