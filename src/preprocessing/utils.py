@@ -255,7 +255,7 @@ def check_if_second_cropping_needed(cropped_image: np.ndarray, threshold: float 
     return coverage_ratio < threshold
 
 
-def perform_second_cropping(cropped_image, segmentation_method: str = 'gmm', n_clusters: int = 3) -> np.ndarray:
+def perform_second_cropping(cropped_image, raw_images_dir: str, segmentation_method: str = 'gmm', n_clusters: int = 3) -> np.ndarray:
     """
     Perform a second cropping on the cropped image.
     
