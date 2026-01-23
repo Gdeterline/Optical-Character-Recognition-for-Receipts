@@ -2,7 +2,6 @@ import os, sys
 import numpy as np
 import cv2
 from PIL import Image
-from PIL.Image import BICUBIC
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
@@ -70,7 +69,7 @@ def resize_image(image_path: str, output_path: str, new_width: int, new_height: 
             The resized image.
     """
     img = Image.open(image_path)
-    img_resized = img.resize((new_width, new_height), BICUBIC)
+    img_resized = img.resize((new_width, new_height), Image.BICUBIC)
     
     if save:
         if output_path and not os.path.exists(output_path):
@@ -352,6 +351,13 @@ def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_met
         return cropped_image2, True
     
     return cropped_image, False
+
+
+
+
+
+
+
 
 
 # Debug code
