@@ -345,7 +345,7 @@ def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_met
     if needs_second_cropping:
         if verbose:
             print(f"Second cropping needed for image {image_filename}. Consider performing a second cropping step.")
-        cropped_image2 = perform_second_cropping(cropped_image, segmentation_method='gmm', n_clusters=3)
+        cropped_image2 = perform_second_cropping(cropped_image, raw_images_dir, segmentation_method='gmm', n_clusters=3)
         if verbose:
             print(f"Second cropping done for image {image_filename}.")
         return cropped_image2, True
@@ -363,6 +363,22 @@ def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_met
 # Debug code
 if __name__ == "__main__":
     pass
+    
+    
+    ######################################################################################################
+    
+    # Perform croppings on two or three images and save them in data/_debug, to conduct experiments on them (PCA, etc.)    
+    # raw_images_dir = "data/images/"
+    # debug_output_dir = "data/_debug/"
+    
+    # image_filenames = ["dev_receipt_00008.png", "dev_receipt_00016.png", "dev_receipt_00080.png"]
+    # for image_filename in image_filenames:
+    #     cropped_image, needs_second_cropping = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2, second_cropping_threshold=0.85, verbose=True)
+    #     debug_image_path = os.path.join(debug_output_dir, image_filename)
+    #     cv2.imwrite(debug_image_path, cropped_image)
+    #     print(f"Cropped image saved to {debug_image_path}. Second cropping needed: {needs_second_cropping}")
+    
+    ######################################################################################################
     
     # # test the check_if_second_cropping_needed function on two images: one that needs second cropping and one that does not
     # raw_images_dir = "data/images/"
@@ -386,6 +402,8 @@ if __name__ == "__main__":
     #     plt.tight_layout()
     #     #plt.savefig(f"reports/figures/cropping_pipeline_{image_filename.replace('.png','')}.png")
     #     plt.show()
+        
+    ######################################################################################################
         
     # Display two examples of the full cropping pipeline for report/slides
     # raw_images_dir = "data/images/"
@@ -414,6 +432,8 @@ if __name__ == "__main__":
     #     plt.suptitle(f"Cropping Pipeline Results for {image_filename}", fontsize=16)
     #     plt.savefig(f"reports/figures/cropping_pipeline_{image_filename.replace('.png','')}.png")
     #     plt.show()
+    
+    ######################################################################################################
     
     # Tryout of the full cropping pipeline and display intermediate results
     ### Good results with soft clustering with 'gmm' and n_clusters=2
@@ -458,7 +478,7 @@ if __name__ == "__main__":
 
     
     
-    
+    ######################################################################################################
     
     # First tryout of each function individually
     
