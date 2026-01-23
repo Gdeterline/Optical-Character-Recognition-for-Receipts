@@ -31,6 +31,7 @@ def compute_average_image_size(raw_images_dir):
     
     return med_width, med_height
 
+
 def compute_nearest_32_multiple(x):
     """
     Compute the nearest multiple of 32 for a given value.
@@ -45,6 +46,7 @@ def compute_nearest_32_multiple(x):
             The nearest multiple of 32.
     """
     return int(np.round(x / 32) * 32)
+
 
 def resize_image(image_path: str, output_path: str, new_width: int, new_height: int, save: bool = False):
     """
@@ -83,6 +85,7 @@ def resize_image(image_path: str, output_path: str, new_width: int, new_height: 
         
     return img_resized
 
+
 def segment_image_kmeans(image: np.ndarray, n_clusters: int = 2) -> np.ndarray:
     """
     Segment an image using K-Means clustering.
@@ -112,6 +115,7 @@ def segment_image_kmeans(image: np.ndarray, n_clusters: int = 2) -> np.ndarray:
 
     return segmented_image
 
+
 def segment_image_gmm(image: np.ndarray, n_components: int = 2) -> np.ndarray:
     """
     Segment an image using Gaussian Mixture Models (GMM).
@@ -140,12 +144,15 @@ def segment_image_gmm(image: np.ndarray, n_components: int = 2) -> np.ndarray:
     segmented_image = labels.reshape(image.shape[:2])
 
     return segmented_image
+
             
 # We now have a segmented image where each pixel is labeled with its cluster index.
 # We want to define a function that extract the cluster corresponding to the receipt.
 def extract_receipt_cluster_largest(segmented_image: np.ndarray) -> np.ndarray:
     """
-    Extract the cluster corresponding to the receipt from the segmented image.
+    Extract the cluster corresponding to the receipt from the segmented image based on largest area.
+    This function assumes that the receipt is the largest cluster in the segmented image, which may not always be true.
+    The image sample 'dev_receipt_00016.png' shows a case where this assumption fails.
 
     Parameters
     ----------
@@ -165,10 +172,12 @@ def extract_receipt_cluster_largest(segmented_image: np.ndarray) -> np.ndarray:
 
     return receipt_mask
 
+
 # Try extracting the receipt cluster based on the central position
 def extract_receipt_cluster_central(segmented_image: np.ndarray) -> np.ndarray:
     """
     Extract the cluster corresponding to the receipt based on central position.
+    This function makes the hypothesis that the receipt is located near the center of the image, which seems reasonable.
 
     Parameters
     ----------
@@ -187,6 +196,7 @@ def extract_receipt_cluster_central(segmented_image: np.ndarray) -> np.ndarray:
     receipt_mask = np.where(segmented_image == central_cluster, 255, 0).astype(np.uint8)
 
     return receipt_mask
+
 
 # Crop the image to remove what is non-receipt area based on the segmented image and the mask
 def crop_to_receipt(image: np.ndarray, receipt_mask: np.ndarray) -> np.ndarray:
@@ -217,7 +227,73 @@ def crop_to_receipt(image: np.ndarray, receipt_mask: np.ndarray) -> np.ndarray:
 
     return cropped_image
 
-def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_method: str = 'gmm', n_clusters: int = 2):
+
+def check_if_second_cropping_needed(cropped_image: np.ndarray, threshold: float = 0.85) -> bool:
+    """
+    Check if a second cropping is needed.
+    The function performs a segmentation on the input image, with 2 clusters.
+    In case the largest cluster covers less than threshold (default 85%) of the image area, we consider that a second cropping is needed.
+    The hypothesis is that if the receipt is not covering enough area, there are still non-receipt areas present.
+    
+    Parameters
+    ----------
+        cropped_image (np.ndarray): 
+            The cropped image to check.
+        threshold (float, optional): 
+            The area coverage threshold to decide if second cropping is needed. Defaults to 0.85.
+    Returns
+    -------
+        bool: 
+            True if a second cropping is needed, False otherwise.
+    """
+    segmented_image = segment_image_gmm(cropped_image, n_components=2)
+    unique, counts = np.unique(segmented_image, return_counts=True)
+    largest_cluster_area = np.max(counts)
+    total_area = cropped_image.shape[0] * cropped_image.shape[1]
+    coverage_ratio = largest_cluster_area / total_area
+    
+    return coverage_ratio < threshold
+
+
+def perform_second_cropping(cropped_image, segmentation_method: str = 'gmm', n_clusters: int = 3) -> np.ndarray:
+    """
+    Perform a second cropping on the cropped image.
+    
+    Parameters
+    ----------
+        cropped_image (Matlike): 
+            The cropped image to process.
+        segmentation_method (str, optional): 
+            The segmentation method to use ('kmeans' or 'gmm'). Defaults to 'gmm'.
+        n_clusters (int, optional):
+            The number of clusters/components for segmentation. Defaults to 3, to better separate receipt from non-receipt areas.
+            Assumes that the cropping with n_clusters=2 was insufficient.
+            
+    Returns
+    -------
+        np.ndarray: 
+            The further cropped image containing only the receipt area.
+    """
+    # Step 1: Segment the cropped image
+    if segmentation_method == 'kmeans':
+        segmented_image = segment_image_kmeans(cropped_image, n_clusters=n_clusters)
+    else:
+        segmented_image = segment_image_gmm(cropped_image, n_components=n_clusters)
+    
+    # Step 2: Extract the receipt cluster
+    receipt_mask = extract_receipt_cluster_central(segmented_image)
+    
+    # Step 3: Crop the image to the receipt area
+    further_cropped_image = crop_to_receipt(cropped_image, receipt_mask)
+    avg_width, avg_height = compute_average_image_size(raw_images_dir)
+    new_width = compute_nearest_32_multiple(avg_width)
+    new_height = compute_nearest_32_multiple(avg_height)
+    further_cropped_image = cv2.resize(further_cropped_image, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
+    
+    return further_cropped_image
+
+
+def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_method: str = 'gmm', n_clusters: int = 2, second_cropping_threshold: float = 0.85, verbose: bool = False) -> np.ndarray:
     """
     Complete cropping pipeline to resize, segment, extract receipt cluster, and crop the image.
 
@@ -231,14 +307,17 @@ def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_met
             The segmentation method to use ('kmeans' or 'gmm'). Defaults to 'gmm'.
         n_clusters (int, optional):
             The number of clusters/components for segmentation. Defaults to 2.
+        verbose (bool, optional):
+            Whether to print verbose output. Defaults to False.
     Returns
     -------
-        np.ndarray: 
-            The cropped image containing only the receipt area.
+
     """
     image_path = os.path.join(raw_images_dir, image_filename)
     
     # Step 1: Resize the image
+    if verbose:
+        print(f"Processing image: {image_filename}")
     avg_width, avg_height = compute_average_image_size(raw_images_dir)
     new_width = compute_nearest_32_multiple(avg_width)
     new_height = compute_nearest_32_multiple(avg_height)
@@ -257,21 +336,58 @@ def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_met
     cropped_image = crop_to_receipt(resized_image, receipt_mask)
     
     # Step 5: Resize cropped image back to original average size
-    cropped_image = cv2.resize(cropped_image, (avg_width, avg_height), interpolation=cv2.INTER_CUBIC)
+    cropped_image = cv2.resize(cropped_image, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
     
-    return segmented_image, cropped_image
+    if verbose:
+        print(f"First cropping done for image {image_filename}.")
+    
+    # Step 6: Check if second cropping is needed
+    needs_second_cropping = check_if_second_cropping_needed(cropped_image, threshold=second_cropping_threshold)
+    if needs_second_cropping:
+        if verbose:
+            print(f"Second cropping needed for image {image_filename}. Consider performing a second cropping step.")
+        cropped_image2 = perform_second_cropping(cropped_image, segmentation_method='gmm', n_clusters=3)
+        if verbose:
+            print(f"Second cropping done for image {image_filename}.")
+        return cropped_image2, True
+    
+    return cropped_image, False
+
 
 # Debug code
 if __name__ == "__main__":
+    pass
     
-
+    # # test the check_if_second_cropping_needed function on two images: one that needs second cropping and one that does not
+    # raw_images_dir = "data/images/"
+    # image_filenames = ["dev_receipt_00080.png", "dev_receipt_00016.png"]
+    
+    # for image_filename in image_filenames:
+    #     cropped_image, needs_second_cropping = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2, second_cropping_threshold=0.85, verbose=False)
+    #     print(f"Does image {image_filename} need second cropping? Answer: {needs_second_cropping}")    
+        
+    #     plt.figure(figsize=(12, 6))   
+    #     plt.subplot(1, 2, 1)
+    #     original_image = cv2.imread(os.path.join(raw_images_dir, image_filename))
+    #     plt.imshow(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
+    #     plt.title("Original Image")
+    #     plt.axis('off')
+    #     plt.subplot(1, 2, 2)
+    #     plt.imshow(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB))
+    #     plt.title("Cropped Image")
+    #     plt.axis('off')
+    #     plt.suptitle(f"Cropping Pipeline Results for {image_filename} - Second Cropping: {needs_second_cropping}", fontsize=16)
+    #     plt.tight_layout()
+    #     #plt.savefig(f"reports/figures/cropping_pipeline_{image_filename.replace('.png','')}.png")
+    #     plt.show()
+        
     # Display two examples of the full cropping pipeline for report/slides
     # raw_images_dir = "data/images/"
     # image_filenames = ["dev_receipt_00080.png", "dev_receipt_00016.png"]
     
     # # Plot the original images, segmented images and cropped images, side by side for each image
     # for image_filename in image_filenames:
-    #     segmented_image, cropped_image = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2)
+    #     cropped_image = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2)
         
     #     print(f"Cropped image shape for {image_filename}: {cropped_image.shape}")
     #     # Visualize the original, segmented and cropped images in three side-by-side plots
@@ -281,9 +397,9 @@ if __name__ == "__main__":
     #     plt.imshow(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
     #     plt.title(f"Original Image - Size: {original_image.shape[1]}x{original_image.shape[0]}")
     #     plt.axis('off')
-    #     plt.subplot(1, 3, 2)
-    #     plt.imshow(segmented_image)
-    #     plt.title(f"Segmented Image - Size: {segmented_image.shape[1]}x{segmented_image.shape[0]}")
+    #     plt.subplot(1, 2, 2)
+    #     plt.imshow(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB))
+    #     plt.title(f"Cropped Image - Size: {cropped_image.shape[1]}x{cropped_image.shape[0]}")
     #     plt.axis('off')
     #     plt.subplot(1, 3, 3)
     #     plt.imshow(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB))
@@ -298,49 +414,41 @@ if __name__ == "__main__":
     ### Issues: sometimes the first cropping is not enough to remove all non-receipt areas (especially true when hands are present)
     ### => try a second cropping step on the cropped image => works better
     
-    raw_images_dir = "data/images/"
-    image_filename = "dev_receipt_00003.png"
-    segmented_image, cropped_image = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2)
+    # raw_images_dir = "data/images/"
+    # image_filename = "dev_receipt_00003.png"
+    # segmented_image, cropped_image = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2)
     
-    # Adaptive binarization of the cropped image to perhaps conduct a second cropping based on contours
-    gray_cropped = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
-    #binary_cropped = binarize_adaptive(gray_cropped)
+    # # Adaptive binarization of the cropped image to perhaps conduct a second cropping based on contours
+    # gray_cropped = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+    # #binary_cropped = binarize_adaptive(gray_cropped)
     
-    # Redo the process a second time, to crop again the cropped image
-    # save the cropped image temporarily
-    temp_cropped_image_path = "data/_debug/temp_cropped_image.png"
-    cv2.imwrite(temp_cropped_image_path, cropped_image)
-    segmented_image2, cropped_image2 = cropping_pipeline("data/_debug", "temp_cropped_image.png", segmentation_method='gmm', n_clusters=3)
-    os.remove(temp_cropped_image_path)
+    # # Redo the process a second time, to crop again the cropped image
+    # # save the cropped image temporarily
+    # temp_cropped_image_path = "data/_debug/temp_cropped_image.png"
+    # cv2.imwrite(temp_cropped_image_path, cropped_image)
+    # cropped_image2 = cropping_pipeline("data/_debug", "temp_cropped_image.png", segmentation_method='gmm', n_clusters=3)
+    # os.remove(temp_cropped_image_path)
     
-    print(f"Cropped image shape: {cropped_image.shape}")
-    # Visualize the original, segmented, cropped, segmented2 and cropped2 images in five side-by-side plots
-    plt.figure(figsize=(12, 8))
-    original_image = cv2.imread(os.path.join(raw_images_dir, image_filename))
-    plt.subplot(1, 5, 1)
-    plt.imshow(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
-    plt.title("Original Image")
-    plt.axis('off')
-    plt.subplot(1, 5, 2)
-    plt.imshow(segmented_image)
-    plt.title("Segmented Image")
-    plt.axis('off')
-    plt.subplot(1, 5, 3)
-    plt.imshow(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB))
-    plt.title("Cropped Image")
-    plt.axis('off')
-    plt.subplot(1, 5, 4)
-    plt.imshow(segmented_image2)
-    plt.title("Segmented Image 2")
-    plt.axis('off')
-    plt.subplot(1, 5, 5)
-    plt.imshow(cv2.cvtColor(cropped_image2, cv2.COLOR_BGR2RGB))
-    plt.title("Cropped Image 2")
-    plt.axis('off')
-    plt.suptitle("Cropping Pipeline Results with Second Cropping", fontsize=16)
-    plt.tight_layout()
-    plt.savefig(f"reports/figures/cropping_pipeline_second_cropping_{image_filename.replace('.png','')}.png")
-    plt.show()
+    # print(f"Cropped image shape: {cropped_image.shape}")
+    # # Visualize the original, segmented, cropped, segmented2 and cropped2 images in five side-by-side plots
+    # plt.figure(figsize=(12, 8))
+    # original_image = cv2.imread(os.path.join(raw_images_dir, image_filename))
+    # plt.subplot(1, 5, 1)
+    # plt.imshow(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
+    # plt.title("Original Image")
+    # plt.axis('off')
+    # plt.subplot(1, 3, 2)
+    # plt.imshow(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB))
+    # plt.title("Cropped Image")
+    # plt.axis('off')
+    # plt.subplot(1, 3, 3)
+    # plt.imshow(cv2.cvtColor(cropped_image2, cv2.COLOR_BGR2RGB))
+    # plt.title("Cropped Image 2")
+    # plt.axis('off')
+    # plt.suptitle("Cropping Pipeline Results with Second Cropping", fontsize=16)
+    # plt.tight_layout()
+    # plt.savefig(f"reports/figures/cropping_pipeline_second_cropping_{image_filename.replace('.png','')}.png")
+    # plt.show()
 
     
     
