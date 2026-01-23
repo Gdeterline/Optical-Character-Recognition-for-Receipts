@@ -263,33 +263,35 @@ def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_met
 
 # Debug code
 if __name__ == "__main__":
+    pass
+
+    # Display two examples of the full cropping pipeline for report/slides
+    # raw_images_dir = "data/images/"
+    # image_filenames = ["dev_receipt_00080.png", "dev_receipt_00016.png"]
     
-    raw_images_dir = "data/images/"
-    image_filenames = ["dev_receipt_00080.png", "dev_receipt_00016.png"]
-    
-    # Plot the original images, segmented images and cropped images, side by side for each image
-    for image_filename in image_filenames:
-        segmented_image, cropped_image = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2)
+    # # Plot the original images, segmented images and cropped images, side by side for each image
+    # for image_filename in image_filenames:
+    #     segmented_image, cropped_image = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2)
         
-        print(f"Cropped image shape for {image_filename}: {cropped_image.shape}")
-        # Visualize the original, segmented and cropped images in three side-by-side plots
-        plt.figure(figsize=(12, 8))
-        original_image = cv2.imread(os.path.join(raw_images_dir, image_filename))
-        plt.subplot(1, 3, 1)
-        plt.imshow(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
-        plt.title(f"Original Image - Size: {original_image.shape[1]}x{original_image.shape[0]}")
-        plt.axis('off')
-        plt.subplot(1, 3, 2)
-        plt.imshow(segmented_image)
-        plt.title(f"Segmented Image - Size: {segmented_image.shape[1]}x{segmented_image.shape[0]}")
-        plt.axis('off')
-        plt.subplot(1, 3, 3)
-        plt.imshow(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB))
-        plt.title(f"Cropped Image - Size: {cropped_image.shape[1]}x{cropped_image.shape[0]}")
-        plt.axis('off')
-        plt.suptitle(f"Cropping Pipeline Results for {image_filename}", fontsize=16)
-        plt.savefig(f"reports/figures/cropping_pipeline_{image_filename.replace('.png','')}.png")
-        plt.show()
+    #     print(f"Cropped image shape for {image_filename}: {cropped_image.shape}")
+    #     # Visualize the original, segmented and cropped images in three side-by-side plots
+    #     plt.figure(figsize=(12, 8))
+    #     original_image = cv2.imread(os.path.join(raw_images_dir, image_filename))
+    #     plt.subplot(1, 3, 1)
+    #     plt.imshow(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
+    #     plt.title(f"Original Image - Size: {original_image.shape[1]}x{original_image.shape[0]}")
+    #     plt.axis('off')
+    #     plt.subplot(1, 3, 2)
+    #     plt.imshow(segmented_image)
+    #     plt.title(f"Segmented Image - Size: {segmented_image.shape[1]}x{segmented_image.shape[0]}")
+    #     plt.axis('off')
+    #     plt.subplot(1, 3, 3)
+    #     plt.imshow(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB))
+    #     plt.title(f"Cropped Image - Size: {cropped_image.shape[1]}x{cropped_image.shape[0]}")
+    #     plt.axis('off')
+    #     plt.suptitle(f"Cropping Pipeline Results for {image_filename}", fontsize=16)
+    #     plt.savefig(f"reports/figures/cropping_pipeline_{image_filename.replace('.png','')}.png")
+    #     plt.show()
     
     # Second tryout of the full cropping pipeline
     ### Good results with soft clustering with 'gmm' and n_clusters=2
