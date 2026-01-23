@@ -152,6 +152,29 @@ def segment_image_gmm(image: np.ndarray, n_components: int = 2) -> np.ndarray:
 
     return segmented_image
 
+
+def segment_image_gmm_robust(image: np.ndarray, n_components: int = 2):
+    # 1. Convert to LAB
+    lab_image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB).astype(np.float64)
+    
+    # 2. Normalize the channels so they have equal "voting power"
+    # But keep L present so the GMM can see the difference between skin and paper
+    l, a, b = cv2.split(lab_image)
+    
+    # Optional: Lightly blur only the L channel to ignore "text" but keep "edges"
+    l = cv2.GaussianBlur(l, (5, 5), 0)
+    
+    # Re-stack: We keep L but we can "stretch" the A/B channels 
+    # to emphasize color differences over brightness differences
+    combined = np.stack([l, a * 1.5, b * 1.5], axis=2) 
+    
+    pixel_values = combined.reshape((-1, 3))
+
+    gmm = GaussianMixture(n_components=n_components, random_state=42, reg_covar=1e-4)
+    labels = gmm.fit_predict(pixel_values)
+
+    return labels.reshape(image.shape[:2])
+
             
 # We now have a segmented image where each pixel is labeled with its cluster index.
 # We want to define a function that extract the cluster corresponding to the receipt.
@@ -300,9 +323,37 @@ def perform_second_cropping(cropped_image, raw_images_dir: str, segmentation_met
     return further_cropped_image
 
 
+def perform_second_cropping_robust(cropped_image, n_clusters=3):
+    segmented_image = segment_image_gmm_robust(cropped_image, n_components=n_clusters)
+    
+    # Instead of just picking the central cluster, let's pick the cluster 
+    # at the center and any cluster that is "very light" (likely paper)
+    height, width = segmented_image.shape
+    central_label = segmented_image[height//2, width//2]
+    
+    # Create mask for the central cluster
+    receipt_mask = np.where(segmented_image == central_label, 255, 0).astype(np.uint8)
+    
+    # CRITICAL: Use a larger morphological closing to merge the "hand-cut" areas
+    # This ensures that even if GMM splits the receipt, the bounding box captures the whole thing.
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 15))
+    receipt_mask = cv2.morphologyEx(receipt_mask, cv2.MORPH_CLOSE, kernel)
+    
+    # Now find the largest contour in that central area
+    contours, _ = cv2.findContours(receipt_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        cnt = max(contours, key=cv2.contourArea)
+        x, y, w, h = cv2.boundingRect(cnt)
+        further_cropped = cropped_image[y:y+h, x:x+w]
+    else:
+        further_cropped = cropped_image
+
+    return further_cropped
+
+
 def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_method: str = 'gmm', n_clusters: int = 2, second_cropping_threshold: float = 0.85, verbose: bool = False) -> np.ndarray:
     """
-    Complete cropping pipeline to resize, segment, extract receipt cluster, and crop the image.
+    Complete cropping pipeline to resize, segment, extract receipt cluster, and crop the image, with optional second cropping if needed.
 
     Parameters
     ----------
@@ -357,14 +408,56 @@ def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_met
         if verbose:
             print(f"Second cropping done for image {image_filename}.")
         return cropped_image2, True
-    
         
-    
     return cropped_image, False
 
 
 
-
+def cropping_pipeline_robust(raw_images_dir: str, image_filename: str, segmentation_method: str = 'gmm', n_clusters: int = 2, second_cropping_threshold: float = 0.85, verbose: bool = False) -> np.ndarray:
+    image_path = os.path.join(raw_images_dir, image_filename)
+    
+    if verbose:
+        print(f"Processing image: {image_filename}")
+        
+    # Step 1: Resize (using your existing logic)
+    avg_width, avg_height = compute_average_image_size(raw_images_dir)
+    new_width = compute_nearest_32_multiple(avg_width)
+    new_height = compute_nearest_32_multiple(avg_height)
+    resized_image = resize_image(image_path, None, new_width, new_height, save=False)
+    
+    # Step 2: Robust Segmentation
+    # We use the new LAB-based GMM here
+    if segmentation_method == 'gmm':
+        segmented_image = segment_image_gmm_robust(resized_image, n_components=n_clusters)
+    else:
+        segmented_image = segment_image_kmeans(resized_image, n_clusters=n_clusters)
+    
+    # Step 3: Extract and Heal the Mask
+    receipt_mask = extract_receipt_cluster_central(segmented_image)
+    
+    # --- ADDED: Morphological Closing ---
+    # This bridges gaps in the mask caused by shadows or faint receipt edges
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
+    receipt_mask = cv2.morphologyEx(receipt_mask, cv2.MORPH_CLOSE, kernel)
+    
+    # Step 4: Crop
+    cropped_image = crop_to_receipt(resized_image, receipt_mask)
+    cropped_image = cv2.resize(cropped_image, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
+    
+    if verbose:
+        print(f"First cropping done for image {image_filename}.")
+    
+    # Step 6: Check if second cropping is needed
+    needs_second_cropping = check_if_second_cropping_needed(cropped_image, threshold=second_cropping_threshold)
+    if needs_second_cropping:
+        if verbose:
+            print(f"Second cropping needed for image {image_filename}. Consider performing a second cropping step.")
+        cropped_image2 = perform_second_cropping_robust(cropped_image, n_clusters=3)
+        if verbose:
+            print(f"Second cropping done for image {image_filename}.")
+        return cropped_image2, True
+            
+    return cropped_image, needs_second_cropping
 
 
 
@@ -372,7 +465,8 @@ def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_met
 
 # Debug code
 if __name__ == "__main__":
-        
+    pass
+    
     ##################################################################################################################################
     
     # Perform croppings on all images and save them in data/_debug, to conduct experiments on them (PCA, etc.)    
@@ -400,7 +494,7 @@ if __name__ == "__main__":
     
     # # test the check_if_second_cropping_needed function on two images: one that needs second cropping and one that does not
     # raw_images_dir = "data/images/"
-    # image_filenames = ["dev_receipt_00080.png", "dev_receipt_00016.png"]
+    # image_filenames = ["dev_receipt_00091.png", "dev_receipt_00016.png"]
     
     # for image_filename in image_filenames:
     #     cropped_image, needs_second_cropping = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2, second_cropping_threshold=0.85, verbose=False)
@@ -465,15 +559,15 @@ if __name__ == "__main__":
     # print(f"Resized image size (nearest multiple of 32): {new_width}x{new_height}")
     
     # # Example of resizing an image
-    # example_image_path = os.path.join(raw_images_dir, "dev_receipt_00013.png")
+    # example_image_path = os.path.join(raw_images_dir, "dev_receipt_00091.png")
     # resized_image = resize_image(example_image_path, None, new_width, new_height, save=False)
     # print(f"Resized image shape: {resized_image.shape}")
     
-    # # Segment the resized image using K-Means
-    # segmented_image_kmeans = segment_image_kmeans(resized_image, n_clusters=2)
-    # print(f"Segmented image shape: {segmented_image_kmeans.shape}")
+    # # # Segment the resized image using K-Means
+    # # segmented_image_kmeans = segment_image_kmeans(resized_image, n_clusters=2)
+    # # print(f"Segmented image shape: {segmented_image_kmeans.shape}")
     
-    # Segment the resized image using GMM
+    # # Segment the resized image using GMM
     # segmented_image_gmm = segment_image_gmm(resized_image, n_components=2)
     # print(f"Segmented image shape (GMM): {segmented_image_gmm.shape}")
     
