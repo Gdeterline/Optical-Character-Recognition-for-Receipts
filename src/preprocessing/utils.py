@@ -152,29 +152,6 @@ def segment_image_gmm(image: np.ndarray, n_components: int = 2) -> np.ndarray:
 
     return segmented_image
 
-
-def segment_image_gmm_robust(image: np.ndarray, n_components: int = 2):
-    # 1. Convert to LAB
-    lab_image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB).astype(np.float64)
-    
-    # 2. Normalize the channels so they have equal "voting power"
-    # But keep L present so the GMM can see the difference between skin and paper
-    l, a, b = cv2.split(lab_image)
-    
-    # Optional: Lightly blur only the L channel to ignore "text" but keep "edges"
-    l = cv2.GaussianBlur(l, (5, 5), 0)
-    
-    # Re-stack: We keep L but we can "stretch" the A/B channels 
-    # to emphasize color differences over brightness differences
-    combined = np.stack([l, a * 1.5, b * 1.5], axis=2) 
-    
-    pixel_values = combined.reshape((-1, 3))
-
-    gmm = GaussianMixture(n_components=n_components, random_state=42, reg_covar=1e-4)
-    labels = gmm.fit_predict(pixel_values)
-
-    return labels.reshape(image.shape[:2])
-
             
 # We now have a segmented image where each pixel is labeled with its cluster index.
 # We want to define a function that extract the cluster corresponding to the receipt.
@@ -320,35 +297,9 @@ def perform_second_cropping(cropped_image, raw_images_dir: str, segmentation_met
     new_height = compute_nearest_32_multiple(avg_height)
     further_cropped_image = cv2.resize(further_cropped_image, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
     
+    # The image is now further cropped, and the channels are kept as in the original image (BGR)
+    
     return further_cropped_image
-
-
-def perform_second_cropping_robust(cropped_image, n_clusters=3):
-    segmented_image = segment_image_gmm_robust(cropped_image, n_components=n_clusters)
-    
-    # Instead of just picking the central cluster, let's pick the cluster 
-    # at the center and any cluster that is "very light" (likely paper)
-    height, width = segmented_image.shape
-    central_label = segmented_image[height//2, width//2]
-    
-    # Create mask for the central cluster
-    receipt_mask = np.where(segmented_image == central_label, 255, 0).astype(np.uint8)
-    
-    # CRITICAL: Use a larger morphological closing to merge the "hand-cut" areas
-    # This ensures that even if GMM splits the receipt, the bounding box captures the whole thing.
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 15))
-    receipt_mask = cv2.morphologyEx(receipt_mask, cv2.MORPH_CLOSE, kernel)
-    
-    # Now find the largest contour in that central area
-    contours, _ = cv2.findContours(receipt_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if contours:
-        cnt = max(contours, key=cv2.contourArea)
-        x, y, w, h = cv2.boundingRect(cnt)
-        further_cropped = cropped_image[y:y+h, x:x+w]
-    else:
-        further_cropped = cropped_image
-
-    return further_cropped
 
 
 def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_method: str = 'gmm', n_clusters: int = 2, second_cropping_threshold: float = 0.85, verbose: bool = False) -> np.ndarray:
@@ -396,6 +347,8 @@ def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_met
     # Step 5: Resize cropped image back to original average size
     cropped_image = cv2.resize(cropped_image, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
     
+    # First "smart" cropping is done. Image channels are BGR.
+    
     if verbose:
         print(f"First cropping done for image {image_filename}.")
     
@@ -412,55 +365,145 @@ def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_met
     return cropped_image, False
 
 
+############# Denoising, Binarization and Deskewing Utilities #############
 
-def cropping_pipeline_robust(raw_images_dir: str, image_filename: str, segmentation_method: str = 'gmm', n_clusters: int = 2, second_cropping_threshold: float = 0.85, verbose: bool = False) -> np.ndarray:
-    image_path = os.path.join(raw_images_dir, image_filename)
+
+def lighten_binarize_grayscale_image(mat_image, output_path=None):
+    """
+    Denoise and binarize a grayscale image using morphological operations (closing) and division normalization.
     
-    if verbose:
-        print(f"Processing image: {image_filename}")
-        
-    # Step 1: Resize (using your existing logic)
-    avg_width, avg_height = compute_average_image_size(raw_images_dir)
-    new_width = compute_nearest_32_multiple(avg_width)
-    new_height = compute_nearest_32_multiple(avg_height)
-    resized_image = resize_image(image_path, None, new_width, new_height, save=False)
+    Parameters
+    ----------
+        mat_image (np.ndarray):
+            The input image (2D numpy array). The image is expected to be in grayscale format.
+            If not, it will be converted to grayscale.
+        output_path (str, optional):
+            Path to save the denoised image. If None, the image is not saved. Defaults to None.
+    Returns
+    -------
+        mat_image (np.ndarray):
+            The original image. If the input was not grayscale, it is converted, then returned as grayscale.
+        background_model (np.ndarray):
+            The estimated background model of the image, given a kernel size of 5x5.
+        result (np.ndarray):
+            The denoised image after division normalization.
+        binary (np.ndarray):
+            The binarized version of the denoised image using Otsu's thresholding (after de-wrinkling).
+    """
+    # Step 0. Ensure the image is in grayscale
+    if mat_image.ndim == 3:
+        mat_image = cv2.cvtColor(mat_image, cv2.COLOR_BGR2GRAY) # Assuming input is BGR if not grayscale
+    elif mat_image.ndim != 2:
+        raise ValueError("Input image must be either grayscale or BGR format.")
     
-    # Step 2: Robust Segmentation
-    # We use the new LAB-based GMM here
-    if segmentation_method == 'gmm':
-        segmented_image = segment_image_gmm_robust(resized_image, n_components=n_clusters)
+    # Step 1. we define the kernel (structuring element)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+
+    # Step 2. Morphological Closing
+    background_model = cv2.morphologyEx(mat_image, cv2.MORPH_CLOSE, kernel)
+    
+    # Slight blur on background to reduce artifacts
+    background_model = cv2.GaussianBlur(background_model, (5, 5), 0)
+
+    # Step 3. Division Normalization ("De-wrinkling" step)
+    result = mat_image.astype(float) / background_model.astype(float)
+    
+    # Scale back to 0-255 range
+    result = result * 255
+    result = np.clip(result, 0, 255).astype(np.uint8)
+
+    # Step 4. Binarization
+    _, binary = cv2.threshold(result, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    
+    # Step 5. Save output if path is provided
+    if output_path:
+        cv2.imwrite(output_path, result)
+    
+    return mat_image, background_model, result, binary
+
+
+def compute_skew_angle(binary_image):
+    """
+    Compute the skew angle of a binary image using contour detection and minimum area rectangles.
+    
+    Parameters
+    ----------
+        binary_image (np.ndarray): 
+            The input binary image (2D numpy array).
+    Returns
+    -------
+        float: 
+            The computed skew angle in degrees. Trigonometric convention is used.
+    """    
+    # Step 1. Invert image (Background must be black, text white for contours)
+    # 127 is mid-gray threshold - usual value to start with
+    if binary_image[0, 0] > 127:
+        inverted = cv2.bitwise_not(binary_image)
     else:
-        segmented_image = segment_image_kmeans(resized_image, n_clusters=n_clusters)
-    
-    # Step 3: Extract and Heal the Mask
-    receipt_mask = extract_receipt_cluster_central(segmented_image)
-    
-    # --- ADDED: Morphological Closing ---
-    # This bridges gaps in the mask caused by shadows or faint receipt edges
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
-    receipt_mask = cv2.morphologyEx(receipt_mask, cv2.MORPH_CLOSE, kernel)
-    
-    # Step 4: Crop
-    cropped_image = crop_to_receipt(resized_image, receipt_mask)
-    cropped_image = cv2.resize(cropped_image, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
-    
-    if verbose:
-        print(f"First cropping done for image {image_filename}.")
-    
-    # Step 6: Check if second cropping is needed
-    needs_second_cropping = check_if_second_cropping_needed(cropped_image, threshold=second_cropping_threshold)
-    if needs_second_cropping:
-        if verbose:
-            print(f"Second cropping needed for image {image_filename}. Consider performing a second cropping step.")
-        cropped_image2 = perform_second_cropping_robust(cropped_image, n_clusters=3)
-        if verbose:
-            print(f"Second cropping done for image {image_filename}.")
-        return cropped_image2, True
+        inverted = binary_image
+
+    # Step 2. Dilate to connect text into lines
+    # Kernel: Wide and short. (20, 1) connects words horizontally.
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 1))
+    dilated = cv2.dilate(inverted, kernel, iterations=1)
+
+    # Step 3. Find Contours of the text lines
+    contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    angles = []
+    for contour in contours:
+        # Filter small noise (dots, specks)
+        if cv2.contourArea(contour) < 100: 
+            continue
             
-    return cropped_image, needs_second_cropping
+        # Fit a rotated rectangle
+        rect = cv2.minAreaRect(contour) 
+        # rect = ((center_x, center_y), (width, height), angle)
+        (center, (w, h), angle) = rect
+        
+        # Step 4. Correct the angle based on rectangle orientation
+        # We normalize to ensure the angle represents the horizontal axis deviation.
+        
+        if w < h:
+            # If width is less than height, the angle corresponds to the vertical side.
+            # We shift it by 90 degrees to get the horizontal alignment.
+            angle = angle - 90
+            
+        angles.append(angle)
 
+    # Step 5. Determine the median angle (Robust to outliers)
+    if len(angles) > 0:
+        median_angle = np.median(angles)
+    else:
+        median_angle = 0.0
 
+    return median_angle
 
+def rotate_image(image, angle):
+    """
+    Rotate an image by a specified angle.
+    Parameters
+    ----------
+        image (np.ndarray): 
+            The input image to rotate.
+        angle (float): 
+            The angle in degrees to rotate the image. Positive values mean trigonometric rotation.
+    Returns
+        np.ndarray: 
+            The rotated image.
+    """
+    # Get image center
+    (h, w) = image.shape[:2]
+    center = (w // 2, h // 2)
+
+    # Compute rotation matrix
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    
+    # Perform the rotation
+    # borderValue=(255,255,255) fills the new empty corners with white
+    rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT, borderValue=(255, 255, 255))
+    
+    return rotated
 
 
 # Debug code
@@ -469,25 +512,25 @@ if __name__ == "__main__":
     
     ##################################################################################################################################
     
-    # Perform croppings on all images and save them in data/_debug, to conduct experiments on them (PCA, etc.)    
-    raw_images_dir = "data/images/"
-    debug_output_dir = "data/_debug/"
-    if not os.path.exists(debug_output_dir):
-        os.makedirs(debug_output_dir)
+    # # Perform croppings on all images and save them in data/_debug, to conduct experiments on them (PCA, etc.)    
+    # raw_images_dir = "data/images/"
+    # debug_output_dir = "data/_debug/"
+    # if not os.path.exists(debug_output_dir):
+    #     os.makedirs(debug_output_dir)
     
-    image_filenames = os.listdir(raw_images_dir)
+    # image_filenames = os.listdir(raw_images_dir)
     
-    # Consider only images that start with 'dev_'
-    image_filenames = [f for f in image_filenames if f.startswith('dev_')]
+    # # Consider only images that start with 'dev_'
+    # image_filenames = [f for f in image_filenames if f.startswith('dev_')]
     
-    for index, image_filename in enumerate(image_filenames):
-        print(f"Processing image: {index+1}/{len(image_filenames)} - {image_filename}")
-        if image_filename not in os.listdir(debug_output_dir):
-            cropped_image, needs_second_cropping = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2, second_cropping_threshold=0.85, verbose=False)
-            if needs_second_cropping:
-                print(f"Second cropping was needed for image {image_filename}.")
-            debug_image_path = os.path.join(debug_output_dir, image_filename)
-            cv2.imwrite(debug_image_path, cropped_image)
+    # for index, image_filename in enumerate(image_filenames):
+    #     print(f"Processing image: {index+1}/{len(image_filenames)} - {image_filename}")
+    #     if image_filename not in os.listdir(debug_output_dir):
+    #         cropped_image, needs_second_cropping = cropping_pipeline(raw_images_dir, image_filename, segmentation_method='gmm', n_clusters=2, second_cropping_threshold=0.85, verbose=False)
+    #         if needs_second_cropping:
+    #             print(f"Second cropping was needed for image {image_filename}.")
+    #         debug_image_path = os.path.join(debug_output_dir, image_filename)
+    #         cv2.imwrite(debug_image_path, cropped_image)
             
     
     ##################################################################################################################################
