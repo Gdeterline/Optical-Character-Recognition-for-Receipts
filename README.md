@@ -55,7 +55,6 @@ Optical-Character-Recognition-for-Receipts/
 │   │   └── dataset_loader.py                        # Functions to load and manage the dataset
 │   │
 │   ├── models/                                     # Model definitions and training scripts
-│   │   ├── detection_model.py                      # Model for detecting text regions
 │   │   ├── recognition_model.py                    # Model for recognizing text from detected regions
 │   │   └── train_models.py                         # Script to train detection and recognition models
 │   │
@@ -86,9 +85,9 @@ Optical-Character-Recognition-for-Receipts/
 └── .gitignore                                      # Git ignore file
 ```
 
-**Need to assess whether or not to include dataset_loader.py directly in detection and recognition folders rather than having a separate dataset folder.**
+**Need to assess whether or not to include dataset_loader.py directly in recognition folders rather than having a separate dataset folder.**
 
-**Also need to assess whether it is actually necessary to proceed to do detection and recognition separately rather than having a single model that does both tasks (depends on time available).**
+**Also need to assess whether it is sufficient to have preprocessing with standard morphological operations and machine learning, or if deep learning-based approaches should be included as well.**
 
 <ins>Note:</ins> The `data/` directory is included in the `.gitignore` file for two reasons. First, to avoid pushing potentially large datasets to the repository, which can overload the version control system and make cloning the repository difficult. Second, though the considered dataset is not sensitive, it could have been. Therefore, excluding the `data/` directory is of good practice, and helps prevent accidental exposure of sensitive information. Should the user wish to run the project, they would need to have the dataset available locally and place it in a created `data/` directory.
 
