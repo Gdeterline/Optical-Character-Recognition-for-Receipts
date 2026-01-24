@@ -510,6 +510,31 @@ def rotate_image(image, angle):
 if __name__ == "__main__":
     pass
     
+    # Test the dewrinkle, denoising, binarization and deskewing functions on a subset of images
+    
+    raw_images_dir = "data/_debug/"
+    debug_output_dir = "data/_debug2/"
+    
+    if not os.path.exists(debug_output_dir):
+        os.makedirs(debug_output_dir)
+        
+    image_filenames = os.listdir(raw_images_dir)
+    
+    # Consider only images a subset of 10 images that start with 'dev_'
+    image_filenames = [f for f in image_filenames if f.startswith('dev_')][:10]
+    
+    for index, image_filename in enumerate(image_filenames):
+        print(f"Processing image: {index+1}/{len(image_filenames)} - {image_filename}")
+        mat_image = cv2.imread(os.path.join(raw_images_dir, image_filename), cv2.IMREAD_GRAYSCALE)
+        original_image, background_model, denoised_image, binary_denoised_image = lighten_binarize_grayscale_image(mat_image)
+        skew_angle = compute_skew_angle(binary_denoised_image)
+        print(f"Detected Skew Angle: {skew_angle:.2f} degrees")
+        deskewed_image = rotate_image(binary_denoised_image, skew_angle)
+        
+        # Save outputs
+        cv2.imwrite(os.path.join(debug_output_dir, f"{image_filename}"), deskewed_image)
+    
+    
     ##################################################################################################################################
     
     # # Perform croppings on all images and save them in data/_debug, to conduct experiments on them (PCA, etc.)    
