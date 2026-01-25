@@ -68,7 +68,13 @@ def preprocessing_pipeline(raw_images_dir: str = "data/images", data_subset: str
         
         # Step 4: Compute skew angle and deskew the image
         skew_angle = compute_skew_angle_robust(clean_binary_image)
-        deskewed_image = rotate_image(clean_binary_image, skew_angle)
+        
+        # Given the text detection step later is more robust to slight over-correction than under-correction
+        # we add a small offset (0.5 degrees seemed to be sufficient) when the skew angle is very small. Otherwise, we deskew normally.
+        if skew_angle < 0.1 and skew_angle > -0.1:
+            deskewed_image = rotate_image(clean_binary_image, skew_angle + 0.5)   
+        else:
+            deskewed_image = rotate_image(clean_binary_image, skew_angle)
         
         preprocessed_images.append(deskewed_image)
     

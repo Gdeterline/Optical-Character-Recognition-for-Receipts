@@ -49,14 +49,16 @@ Optical-Character-Recognition-for-Receipts/
 ├── src/                                            # Source code
 │   ├── preprocessing/                              # Image preprocessing scripts
 │   │   ├── utils.py                                # Utility functions for preprocessing (deskewing, normalizing, etc.)
-│   │   └── preprocessing_pipeline.py               # Main preprocessing pipeline
+│   │   └── preprocessing_pipeline.py               # Main preprocessing pipeline for the raw images
 │   │
 │   ├── dataset/                                    # Dataset handling scripts
-│   │   └── dataset_loader.py                        # Functions to load and manage the dataset
+│   │   └── dataset_loader.py                       # Functions to load and manage the dataset
 │   │
-│   ├── models/                                     # Model definitions and training scripts
-│   │   ├── recognition_model.py                    # Model for recognizing text from detected regions
-│   │   └── train_models.py                         # Script to train detection and recognition models
+│   ├── optical_character_recognition/              # OCR pipeline scripts
+│   │   ├── detection.py                            # Text detection functions (using morphological operations and contour detection)
+│   │   ├── detection_pipeline.py                   # Pipeline for detecting text regions in images
+│   │   ├── recognition.py                          # Model for recognizing text from detected regions
+│   │   └── training_pipeline.py                    # Pipeline for training the recognition model
 │   │
 │   ├── evaluation/                                 # Evaluation scripts
 │   │   ├── metrics.py                              # Functions to compute evaluation metrics
@@ -66,9 +68,9 @@ Optical-Character-Recognition-for-Receipts/
 │       └── utils.py                                # Functions for post-processing (e.g., regex for amount extraction, validation, etc.)
 │
 ├── notebooks/                                      # Jupyter notebooks for exploration and experimentation (not part of the main pipeline)
-│   ├── exploratory_data_analysis.ipynb             # EDA on the receipt dataset 
-│   ├── exploring_detection_models.ipynb            # Experimenting with text detection models (for extracting receipt from background)
-│   └── exploring_recognition_models.ipynb          # Experimenting with text recognition models (for extracting text from regions)
+│   ├── exploring_preprocessing.ipynb               # Exploring preprocessing techniques (to remove background, explore annotations, etc.)
+│   ├── denoising_images.ipynb                      # Experimenting with image denoising and wrinkle removal using morphological operations
+│   └── textbox_detection.ipynb                     # Experimenting with text detection using morphological operations and contour detection
 │
 ├── reports/
 │   ├── figures/                                    # Figures for the report        
