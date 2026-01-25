@@ -89,7 +89,7 @@ def preprocessing_pipeline(raw_images_dir: str = "data/images", data_subset: str
 if __name__ == "__main__":
     # Example usage
     preprocessed_images = preprocessing_pipeline(
-        raw_images_dir="data/images",
+        raw_images_dir="data/images_subset",
         data_subset="dev_",
         segmentation_method='gmm',
         n_clusters=2,
