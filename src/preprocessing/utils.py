@@ -477,6 +477,77 @@ def compute_skew_angle(binary_image):
 
     return median_angle
 
+
+def compute_skew_angle_robust(binary_image):
+    """
+    Compute the skew angle of a binary image using contour detection and minimum area rectangles,
+    but this version includes additional filtering to avoid biases from non-text contours (receipt borders, etc).
+    
+    Parameters
+    ----------
+        binary_image (np.ndarray): 
+            The input binary image (2D numpy array).
+    Returns
+    -------
+        float: 
+            The computed skew angle in degrees. Trigonometric convention is used.
+    """
+    # 1. Invert if necessary (Standardize to White Text on Black Background)
+    if binary_image[0, 0] > 127:
+        inverted = cv2.bitwise_not(binary_image)
+    else:
+        inverted = binary_image
+
+    # 2. Dilate to connect text horizontally
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 1))
+    dilated = cv2.dilate(inverted, kernel, iterations=1)
+
+    contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    angles = []
+    for contour in contours:
+        # Filter 1: Ignore small noise
+        if cv2.contourArea(contour) < 100:
+            continue
+            
+        rect = cv2.minAreaRect(contour) 
+        (center, (w, h), angle) = rect
+
+        # The next steps implement additional filters to ensure we only consider valid text lines (and not receipt "borders"
+        # that could add bias to the skew angle calculation).
+        
+        # Determine the long side and short side
+        long_side = max(w, h)
+        short_side = min(w, h)
+        
+        # Filter 2: Aspect Ratio Check
+        # A real text line is much wider than it is tall.
+        # If the shape is square-ish or tall, it's not a horizontal text line.
+        if short_side == 0 or (long_side / short_side) < 2.0:
+            continue # Skip square or vertical-looking blobs
+
+        # Normalize Angle logic to handle the "Tall" vs "Wide" rectangle confusion
+        # If OpenCV returns the rectangle as "tall" (w < h), it means the angle 
+        # is relative to the vertical axis. We adjust it.
+        if w < h:
+            angle = angle - 90
+            
+        # Filter 3: Angle Safety Net
+        # We assume the receipt is not upside down or sideways (> 45 degree tilt).
+        # If we detect a 90 degree tilt, it's likely a vertical line being misread.
+        if abs(angle) > 45:
+            continue
+
+        angles.append(angle)
+
+    if len(angles) > 0:
+        median_angle = np.median(angles)
+    else:
+        median_angle = 0.0
+
+    return median_angle
+
+
 def rotate_image(image, angle):
     """
     Rotate an image by a specified angle.

@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from preprocessing.utils import cropping_pipeline, lighten_binarize_grayscale_image, compute_skew_angle, rotate_image
+from preprocessing.utils import cropping_pipeline, lighten_binarize_grayscale_image, compute_skew_angle_robust, rotate_image
 
 def preprocessing_pipeline(raw_images_dir: str = "data/images", data_subset: str = "dev_", segmentation_method: str = 'gmm', n_clusters: int = 2, second_cropping_threshold: float = 0.85, output_path: str = None, verbose: bool = False) -> list:
     """
@@ -67,7 +67,7 @@ def preprocessing_pipeline(raw_images_dir: str = "data/images", data_subset: str
         _, _, _, clean_binary_image = lighten_binarize_grayscale_image(gray_image, output_path=None)
         
         # Step 4: Compute skew angle and deskew the image
-        skew_angle = compute_skew_angle(clean_binary_image)
+        skew_angle = compute_skew_angle_robust(clean_binary_image)
         deskewed_image = rotate_image(clean_binary_image, skew_angle)
         
         preprocessed_images.append(deskewed_image)
