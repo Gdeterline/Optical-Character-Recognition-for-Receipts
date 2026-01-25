@@ -382,7 +382,9 @@ def lighten_binarize_grayscale_image(mat_image, output_path=None):
         mat_image (np.ndarray):
             The original image. If the input was not grayscale, it is converted, then returned as grayscale.
         background_model (np.ndarray):
-            The estimated background model of the image, given a kernel size of 5x5.
+            The estimated background model of the image, given a kernel size of 8x8. The kernel size was defined empirically. 5x5 was 
+            slightly to small, and resulted in losing the text details (in cases where the font is quite large).
+            But the smaller the kernel, the better the de-wrinkling and denoising effect. 8x8 seems like a good compromise.
         result (np.ndarray):
             The denoised image after division normalization.
         binary (np.ndarray):
@@ -395,7 +397,7 @@ def lighten_binarize_grayscale_image(mat_image, output_path=None):
         raise ValueError("Input image must be either grayscale or BGR format.")
     
     # Step 1. we define the kernel (structuring element)
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (8, 8))
 
     # Step 2. Morphological Closing
     background_model = cv2.morphologyEx(mat_image, cv2.MORPH_CLOSE, kernel)
