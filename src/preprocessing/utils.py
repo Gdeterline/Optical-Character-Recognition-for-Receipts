@@ -2,6 +2,7 @@ import os, sys
 import numpy as np
 import cv2
 import json
+import pickle
 from PIL import Image
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
@@ -646,6 +647,7 @@ def rotate_image(image, angle):
 def crop_words_from_receipts(
     image_filename, 
     preprocessed_images_dir: str = "data/preprocessed_images", 
+    metadata_filename: str = "data/metadata.pkl",
     preprocessed_bboxes_jsonfile: str = "data/preprocessed_bboxes.json", 
     size: tuple = (128, 128), 
     output_cropped_words_dir: str = "data/preprocessed_words",
@@ -653,6 +655,7 @@ def crop_words_from_receipts(
     ) -> list:
     """
     Crop words from preprocessed receipt images and save them as individual images.
+    Create a mapping of image filenames to their corresponding cropped word image file paths, along with the associated words/labels.
     
     Parameters
     ----------
@@ -663,6 +666,8 @@ def crop_words_from_receipts(
         preprocessed_bboxes_jsonfile (str): 
             Path to the JSON file containing bounding boxes' coordinates for words in the preprocessed images. 
             Defaults to "data/preprocessed_bboxes.json".
+        metadata_filename (str): 
+            Path to the JSON file containing metadata for the preprocessed images. Defaults to "data/metadata.pkl".
         size (tuple, optional):
             The desired size (width, height) to resize the cropped word images. Defaults to (128, 128).
         output_cropped_words_dir (str, optional):
@@ -684,6 +689,17 @@ def crop_words_from_receipts(
     # Load bounding boxes from JSON file
     with open(preprocessed_bboxes_jsonfile, 'r') as f:
         bboxes_data = json.load(f)
+        
+    # Load the metadata file (with annotations/labels for each word/bbox)
+    with open(metadata_filename, 'rb') as f:
+        metadata = pickle.load(f)
+        
+    file_names = metadata['file_name']
+    words_list = metadata['words']
+    
+    # Extract the words corresponding to the current image
+    index = file_names.values.tolist().index(image_filename)
+    words = words_list[index]
         
     # Load the preprocessed image
     image_path = os.path.join(preprocessed_images_dir, image_filename)
@@ -727,7 +743,24 @@ def crop_words_from_receipts(
         # Keep track of saved word files
         if image_filename not in filename_to_word_files:
             filename_to_word_files[image_filename] = []
-        filename_to_word_files[image_filename].append(word_image_path)
+        
+        # The format of the json file should be:
+        # {
+        #   "image1.png": {
+            # "word_files": ["image1_word_0.png", "image1_word_1.png", ...],
+            # "words": ["word1", "word2", ...]
+        #   },
+        #   "image2.png": {
+        #       ...
+        #   }
+        # }
+        # The hypothesis is that the order of words in `words` matches the order of bounding boxes in `bboxes`.
+        # That hypothesis sounds reasonable, given the format of the pickle file.
+        filename_to_word_files[image_filename].append({
+            "word_file": word_image_path,
+            "word": words[i] if i < len(words) else ""
+        })
+    
         
     # Save the mapping to JSON file (append mode)
     if os.path.exists(map_filename_to_word_files_json):
@@ -744,7 +777,7 @@ def crop_words_from_receipts(
         with open(map_filename_to_word_files_json, 'w') as f:
             json.dump(filename_to_word_files, f, indent=4)
         
-    return cropped_images, filename_to_word_files
+    return cropped_images, filename_to_word_files, words
 
 
 
