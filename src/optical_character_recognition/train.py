@@ -8,19 +8,19 @@ import time
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
-from dataset.dataset import extract_charset, build_vocab, split_receipts, build_samples, OCRDataset, build_dataloaders
+from dataset.dataset import extract_charset, build_vocab, split_receipts, stratified_split_receipts, build_samples, OCRDataset, build_dataloaders
 from recognition import CRNN
 
 def train(
     json_annotations_path="data/filename_to_word_files.json",
     batch_size=8,
-    epochs=15,
-    lr=1e-3,
+    epochs=50,
+    lr=5e-4,
     model_save_path="./crnn_weights.pth",
     log_file="./training_log.txt",
     device=torch.device("cpu"),
     train_ratio=0.8,
-    load_weights=True,
+    load_weights=False,
     plot_errors=True,
     verbose=True
 ):
@@ -58,7 +58,8 @@ def train(
     char2idx, idx2char, blank_idx, num_classes = build_vocab(chars)
 
     # Split data into training and validation sets
-    train_receipts, val_receipts = split_receipts(json_annotations_path, train_ratio=train_ratio)
+    # train_receipts, val_receipts = split_receipts(json_annotations_path, train_ratio=train_ratio)
+    train_receipts, val_receipts = stratified_split_receipts(json_annotations_path, train_ratio=train_ratio)
     train_samples = build_samples(json_annotations_path, train_receipts)
     val_samples   = build_samples(json_annotations_path, val_receipts)
 
@@ -195,9 +196,9 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     train(
         json_annotations_path="data/filename_to_word_files.json",
-        batch_size=8,
-        epochs=50,
-        lr=1e-3,
+        batch_size=16,
+        epochs=80,
+        lr=5e-4,
         model_save_path="./crnn_weights.pth",
         log_file="./training_log.txt",
         device=device,

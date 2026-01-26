@@ -7,6 +7,8 @@ from PIL import Image
 import torch
 from torch.utils.data import DataLoader
 import torchvision.transforms as T
+from sklearn.model_selection import train_test_split
+from collections import Counter
 
 sys.path.append(os.path.abspath(os.path.join('../src')))
 
@@ -73,6 +75,39 @@ def build_vocab(chars):
 
 #################################################### Functions to split data and build samples ####################################################
 
+def word_category(word: str):
+    """
+    Takes a word string and returns its category: 'alpha', 'digit', 'mixed', or 'other'.
+    """
+    has_alpha = any(c.isalpha() for c in word)
+    has_digit = any(c.isdigit() for c in word)
+
+    if has_alpha and has_digit:
+        return "mixed"
+    elif has_alpha:
+        return "alpha"
+    elif has_digit:
+        return "digit"
+    else:
+        return "other"
+
+def receipt_category(words):
+    """
+    Assign one category to a receipt based on majority vote. 
+    The goal is to categorize receipts into 'alpha', 'digit', 'mixed', or 'other' based on the words they contain, to create a somewhat balanced split.
+    
+    Parameters
+    ----------
+    words : list of str
+        List of words in the receipt.
+    Returns
+    -------
+    str
+        Category of the receipt.
+    """
+    cats = [word_category(w) for w in words]
+    counts = Counter(cats)
+    return counts.most_common(1)[0][0]
 
 def split_receipts(json_path, train_ratio=0.8, seed=42):
     """
@@ -101,6 +136,47 @@ def split_receipts(json_path, train_ratio=0.8, seed=42):
     val_receipts = receipts[n_train:]
 
     return train_receipts, val_receipts
+
+
+
+def stratified_split_receipts(
+    json_path,
+    train_ratio=0.8,
+    seed=42
+):
+    """
+    Same as split_receipts but ensures stratification based on receipt main categories.
+    """
+    with open(json_path, "r") as f:
+        data = json.load(f)
+
+    receipts = list(data.keys())
+
+    # Compute label for each receipt
+    receipt_labels = []
+    for receipt in receipts:
+        words = [entry["word"] for entry in data[receipt]]
+        label = receipt_category(words)
+        receipt_labels.append(label)
+
+    train_receipts, val_receipts = train_test_split(
+        receipts,
+        test_size=1 - train_ratio,
+        random_state=seed,
+        stratify=receipt_labels
+    )
+
+    return train_receipts, val_receipts
+
+def count_receipt_labels(receipts, json_path="data/filename_to_word_files.json"):
+    
+    with open(json_path) as f:
+        data = json.load(f)
+    labels = []
+    for r in receipts:
+        words = [e["word"] for e in data[r]]
+        labels.append(receipt_category(words))
+    return Counter(labels)
 
 # Build samples list from receipt filenames
 def build_samples(json_path, receipt_filenames):
@@ -231,3 +307,15 @@ def build_dataloaders(
     )
 
     return train_loader, val_loader
+
+
+if __name__ == "__main__":
+    
+    json_path = "data/filename_to_word_files.json"
+    
+    train_receipts, val_receipts = stratified_split_receipts(json_path)
+    train_samples = build_samples(json_path, train_receipts)
+    val_samples   = build_samples(json_path, val_receipts)
+
+    print("Train receipt distribution:", count_receipt_labels(train_receipts, json_path))
+    print("Val receipt distribution:", count_receipt_labels(val_receipts, json_path))

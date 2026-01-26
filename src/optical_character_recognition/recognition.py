@@ -11,19 +11,25 @@ class CRNN(nn.Module):
     - 1 BiLSTM layer (Bidirectional LSTM)
     - Fully connected output layer with num_classes outputs
     """
-    def __init__(self, num_classes, lstm_hidden_size=128, lstm_layers=1):
+    def __init__(self, num_classes, lstm_hidden_size=256, lstm_layers=1):
         super(CRNN, self).__init__()
 
         # Step 1. CNN Backbone
         # input: (B, 1, 128, 128)
         self.cnn = nn.Sequential(
-            nn.Conv2d(1, 32, 3, padding=1), nn.ReLU(),
+            nn.Conv2d(1, 32, 3, padding=1), 
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
             nn.MaxPool2d((2,2)),  # 64x64
 
-            nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(),
+            nn.Conv2d(32, 64, 3, padding=1), 
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
             nn.MaxPool2d((2,2)),  # 32x32
 
-            nn.Conv2d(64, 128, 3, padding=1), nn.ReLU(),
+            nn.Conv2d(64, 128, 3, padding=1), 
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
             nn.MaxPool2d((2,2)),  # 16x16
         )
 
