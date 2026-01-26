@@ -129,10 +129,11 @@ def train(
         epoch_times.append(epoch_duration)
         avg_time = sum(epoch_times) / len(epoch_times)
         remaining_time = avg_time * (epochs - epoch)
+        remaining_time_format = time.strftime('%H:%M:%S', time.gmtime(remaining_time))
 
         if verbose:
             print(f"Epoch {epoch}/{epochs} - Training Loss: {epoch_loss:.4f} - Validation loss: {val_loss_total:.4f}")
-            print(f"Epoch duration: {epoch_duration:.2f}s - Average: {avg_time:.2f}s - ETA: {remaining_time:.0f}s")
+            print(f"Epoch duration: {epoch_duration:.2f}s - Average: {avg_time:.2f}s - ETA: {remaining_time_format}")
         # Save model after each epoch
         torch.save(model.state_dict(), model_save_path)
 
