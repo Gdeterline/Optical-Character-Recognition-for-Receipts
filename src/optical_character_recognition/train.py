@@ -158,16 +158,15 @@ def train(
                 loss = criterion(outputs.log_softmax(2), targets, input_lengths, target_lengths)
                 val_loss_total += loss.item() * images.size(0)
 
-                # Implement early stopping: if the validation loss starts increasing (the val loss continuously increases for 5 epochs,
-                # by a margin of at least 0.5%), stop training
-                if epoch > 5 and len(val_losses) >= 5:
+                # Implement early stopping: if val loss increases significantly, stop training
+                # For instance, with all(recent_losses[j] < recent_losses[j+1] * 1.1 for j in range(4)):
+                if epoch > 5:
                     recent_losses = val_losses[-5:]
-                    if all(recent_losses[i] < recent_losses[i+1] * 0.995 for i in range(4)):
-                        log(f"[{datetime.now()}] Early stopping at epoch {epoch} due to increasing validation loss.")
+                    if all(recent_losses[j] < recent_losses[j+1] * 1.1 for j in range(4)):
+                        log(f"[{datetime.now()}] Early stopping triggered at epoch {epoch} due to increasing validation loss.")
                         if verbose:
-                            print(f"Early stopping at epoch {epoch} due to increasing validation loss.")
+                            print(f"Early stopping triggered at epoch {epoch} due to increasing validation loss.")
                         return model, train_losses, val_losses
-                    
 
         val_loss_total /= len(val_dataset)
         val_losses.append(val_loss_total)

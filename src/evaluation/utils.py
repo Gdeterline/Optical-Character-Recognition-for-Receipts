@@ -1,5 +1,6 @@
 import os, sys
 import torch
+import matplotlib.pyplot as plt
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dataset.dataset import extract_charset, build_vocab, build_dataloaders, split_receipts, build_samples, OCRDataset
@@ -71,7 +72,7 @@ def cer(pred, gt):
     return dp[len(pred)][len(gt)] / max(1, len(gt))
 
 
-def evaluate_ocr(model, dataloader, idx2char, blank_idx=0, device="cpu", max_batches=2):
+def evaluate_ocr(model, dataloader, idx2char, blank_idx=0, device="cpu", max_batches=4):
     """
     Runs greedy decoding on a few validation batches and prints predictions.
     Also computes average CER.
@@ -95,15 +96,59 @@ def evaluate_ocr(model, dataloader, idx2char, blank_idx=0, device="cpu", max_bat
                 total_cer += sample_cer
                 count += 1
 
-                print(f"GT   : {gt}")
-                print(f"PRED : {pred}")
-                print(f"CER  : {sample_cer:.2f}")
+                print(f"Ground Truth: {gt}")
+                print(f"Prediction  : {pred}")
+                print(f"CER: {sample_cer:.2f}")
                 print("-" * 40)
 
     avg_cer = total_cer / max(1, count)
     print(f"\nAverage CER (preview): {avg_cer:.3f}")
 
     return avg_cer
+
+# function to display the predictions on a few validation samples with the images and the ground truth
+def display_predictions(model, dataloader, idx2char, blank_idx=0, device="cpu", num_images=8, max_batches=4):
+    """
+    Displays images with their ground truth and predicted texts, in subplots.
+    """
+    model.eval()
+    images_displayed = 0
+    plt.figure(figsize=(12, 6))
+    with torch.no_grad():
+        for batch_idx, (images, _, _, texts) in enumerate(dataloader):
+            if batch_idx >= max_batches:
+                plt.suptitle("OCR Predictions vs Ground Truths on the validation set", fontsize=16)
+                plt.tight_layout()
+                plt.savefig("reports/figures/ocr_predictions.png")
+                plt.show()
+                break
+
+            images = images.to(device)
+            logits = model(images)
+
+            preds = greedy_decode(logits, idx2char, blank_idx)
+
+            for i in range(images.size(0)):
+                if images_displayed >= num_images:
+                    break
+
+                img = images[i].cpu().squeeze(0).numpy()
+                gt = texts[i]
+                pred = preds[i]
+
+                plt.subplot(1, num_images, images_displayed + 1)
+                plt.imshow(img, cmap='gray')
+                plt.title(f"GT: {gt}\nPred: {pred}")
+                plt.axis('off')
+
+                images_displayed += 1
+
+            if images_displayed >= num_images:
+                plt.suptitle("OCR Predictions vs Ground Truths on the validation set", fontsize=16)
+                plt.tight_layout()
+                plt.savefig("reports/figures/ocr_predictions.png")
+                plt.show()
+                break
 
 
 if __name__ == "__main__":
@@ -127,11 +172,23 @@ if __name__ == "__main__":
     model = CRNN(num_classes=num_classes)
     model.load_state_dict(torch.load("crnn_weights.pth", map_location="cpu"))
 
-    evaluate_ocr(
+    # evaluate_ocr(
+    #     model,
+    #     val_loader,
+    #     idx2char,
+    #     blank_idx=blank_idx,
+    #     device="cpu",
+    #     max_batches=4
+    # )
+    
+    display_predictions(
         model,
         val_loader,
         idx2char,
         blank_idx=blank_idx,
         device="cpu",
-        max_batches=2
+        num_images=8,
+        max_batches=4
     )
+    
+    
