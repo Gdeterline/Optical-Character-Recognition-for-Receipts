@@ -1,6 +1,7 @@
 import os, sys
 import numpy as np
 import cv2
+import json
 from PIL import Image
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
@@ -637,6 +638,114 @@ def rotate_image(image, angle):
     rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT, borderValue=(255, 255, 255))
     
     return rotated
+
+
+################################################ Splitting Receipts into Words ############################################################
+
+
+def crop_words_from_receipts(
+    image_filename, 
+    preprocessed_images_dir: str = "data/preprocessed_images", 
+    preprocessed_bboxes_jsonfile: str = "data/preprocessed_bboxes.json", 
+    size: tuple = (128, 128), 
+    output_cropped_words_dir: str = "data/preprocessed_words",
+    map_filename_to_word_files_json: str = "data/filename_to_word_files.json"
+    ) -> list:
+    """
+    Crop words from preprocessed receipt images and save them as individual images.
+    
+    Parameters
+    ----------
+        image_filename (str): 
+            The filename of the receipt image to process.
+        preprocessed_images_dir (str): 
+            Path to the directory containing preprocessed receipt images. Defaults to "data/preprocessed_images".
+        preprocessed_bboxes_jsonfile (str): 
+            Path to the JSON file containing bounding boxes' coordinates for words in the preprocessed images. 
+            Defaults to "data/preprocessed_bboxes.json".
+        size (tuple, optional):
+            The desired size (width, height) to resize the cropped word images. Defaults to (128, 128).
+        output_cropped_words_dir (str, optional):
+            Path to the directory to save the cropped word images. Defaults to "data/preprocessed_words".
+        map_filename_to_word_files_json (str, optional):
+            Path to save the mapping of image filenames to their corresponding cropped word image file paths.
+            Defaults to "data/filename_to_word_files.json".
+            Mode is append if the file already exists.
+            
+    Returns
+    -------
+        list:
+            The list of cropped images
+        dict:
+            A dictionary mapping the image filename to the list of saved word image file paths.
+    """
+    filename_to_word_files = {}
+    
+    # Load bounding boxes from JSON file
+    with open(preprocessed_bboxes_jsonfile, 'r') as f:
+        bboxes_data = json.load(f)
+        
+    # Load the preprocessed image
+    image_path = os.path.join(preprocessed_images_dir, image_filename)
+    image = cv2.imread(image_path)
+    
+    # Ensure output directory exists
+    if not os.path.exists(output_cropped_words_dir):
+        os.makedirs(output_cropped_words_dir)
+        
+    cropped_images = []
+    # Process each bounding box for the given image
+    bboxes = bboxes_data[image_filename]
+    cropped_images = []
+    for i, bbox in enumerate(bboxes):
+        # Extract the four corner points of the bounding box
+        pts = np.array([(bbox['x1'], bbox['y1']), (bbox['x2'], bbox['y2']), (bbox['x3'], bbox['y3']), (bbox['x4'], bbox['y4'])], dtype='float32')
+        
+        # Compute width and height of the bounding box
+        width = int(max(np.linalg.norm(pts[0] - pts[1]), np.linalg.norm(pts[2] - pts[3])))
+        height = int(max(np.linalg.norm(pts[0] - pts[3]), np.linalg.norm(pts[1] - pts[2])))
+        
+        # Define destination points for perspective transform
+        # This dst_pts defines a rectangle of size (width, height) that we want to map the bbox to
+        dst_pts = np.array([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]], dtype='float32')
+        
+        # Compute the perspective transform matrix and apply it
+        M = cv2.getPerspectiveTransform(pts, dst_pts)
+        
+        # Perform the warp perspective to get the cropped word image
+        warped = cv2.warpPerspective(image, M, (width, height))
+        
+        # Resize the cropped image to a fixed common size, e.g., 128x128
+        warped = cv2.resize(warped, size)
+        cropped_images.append(warped)
+        
+        # Save the cropped word image
+        word_image_filename = f"{os.path.splitext(image_filename)[0]}_word_{i}.png"
+        word_image_path = os.path.join(output_cropped_words_dir, word_image_filename)
+        cv2.imwrite(word_image_path, warped)
+        
+        # Keep track of saved word files
+        if image_filename not in filename_to_word_files:
+            filename_to_word_files[image_filename] = []
+        filename_to_word_files[image_filename].append(word_image_path)
+        
+    # Save the mapping to JSON file (append mode)
+    if os.path.exists(map_filename_to_word_files_json):
+        with open(map_filename_to_word_files_json, 'r') as f:
+            existing_data = json.load(f)
+        if image_filename in existing_data:
+            # Do not overwrite existing entries for this image
+            pass
+        else:
+            existing_data.update(filename_to_word_files)
+            with open(map_filename_to_word_files_json, 'w') as f:
+                json.dump(existing_data, f, indent=4)
+    else:
+        with open(map_filename_to_word_files_json, 'w') as f:
+            json.dump(filename_to_word_files, f, indent=4)
+        
+    return cropped_images, filename_to_word_files
+
 
 
 # Debug code
