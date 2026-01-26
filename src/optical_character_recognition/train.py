@@ -20,9 +20,37 @@ def train(
     log_file="./training_log.txt",
     device=torch.device("cpu"),
     train_ratio=0.8,
+    load_weights=True,
     plot_errors=True,
     verbose=True
 ):
+    """
+    Trains the CRNN model for OCR on the word images dataset.
+    
+    Parameters
+    ----------
+    json_annotations_path : str
+        Path to the JSON annotations file.
+    batch_size : int
+        Batch size for training.
+    epochs : int
+        Number of training epochs.
+    lr : float
+        Learning rate for the optimizer.
+    model_save_path : str
+        Path to save the trained model weights.
+    log_file : str
+        Path to the training log file.
+    device : torch.device
+        Device to use for training (CPU or GPU).
+    train_ratio : float
+        Proportion of data to use for training (rest for validation).
+    load_weights : bool
+        Whether to load existing weights from model_save_path.
+    plot_errors : bool
+        Whether to plot training and validation losses after training.
+    verbose : bool
+    """
     # Prepare data
     if verbose:
         print("Preparing data...")
@@ -47,9 +75,16 @@ def train(
     if verbose:
         print("Initializing model...")
     model = CRNN(num_classes=num_classes)
-    model.to(device)
+    
     if verbose:
         print(f"Model parameters: {model.count_parameters()}")
+
+    if load_weights and os.path.exists(model_save_path):
+        if verbose:
+            print(f"Loading weights from {model_save_path}...")
+        model.load_state_dict(torch.load(model_save_path, map_location=device))
+    
+    model.to(device)
 
     # Defining Loss and optimizer
     criterion = nn.CTCLoss(blank=blank_idx, zero_infinity=True)
@@ -167,6 +202,7 @@ if __name__ == "__main__":
         log_file="./training_log.txt",
         device=device,
         train_ratio=0.8,
+        load_weights=True,
         plot_errors=True,
         verbose=True
     )
