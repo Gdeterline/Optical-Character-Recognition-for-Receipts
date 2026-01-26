@@ -9,14 +9,16 @@ This repository contains code for extracting the total amount from receipt image
 - [Installation](#installation)
 - [File Structure](#file-structure)
 - [Usage](#usage)
+- [Main Pipeline](#main-pipeline)
+- [Author](#author)
 
 ## Abstract
 
-This project is done as part of an interview assignment for a Data Scientist internship at a given company. The objective is to build an OCR system that can accurately extract the total amount from receipt images, without relying on pre-trained OCR libraries/APIs (which can be black-boxes).
+This project is done as part of an interview assignment for a Data Scientist internship at a given company. The objective is to build an OCR system that can accurately extract information from receipt images, without relying on pre-trained OCR libraries/APIs (which can be black-boxes).
 
 ## Project Overview
 
-The goal of this project is to develop an OCR system capable of accurately extracting the total amount from receipt images. This involves several key steps, including image preprocessing to enhance quality, text detection to locate relevant regions, text recognition to convert images to text, and post-processing to extract and validate the total amount. The project utilizes a dataset of receipt images with annotated total amounts for training and evaluation.
+The goal of this project is to develop an OCR system capable of accurately extracting the objects and their associated amounts from receipt images. This involves several key steps, including image preprocessing to enhance quality, text detection to locate relevant regions, text recognition to convert images to text, and post-processing to extract and validate the (object, amount) tuples. The project utilizes a dataset of receipt images with annotations for training and evaluation.
 
 
 ## Installation
@@ -103,6 +105,15 @@ To run the OCR pipeline, use the `main.py` script with appropriate parameters. F
 python main.py [TO BE COMPLETED WHEN PROJECT IS FINALIZED]
 ```
 
+## Main Pipeline
+
+The Optical Character Recognition pipeline for the receipt dataset consists of the following main steps:
+- Preprocessing: Enhance the quality of receipt images using techniques such as (several if needed) "smart" cropping(s) based on segmentation masks, de-wrinkling and denoising using morphological operations, deskewing, and binarization. The transformations operated on the raw images are also made on the bounding box annotations to keep them consistent. The bounding boxes are then used for training the text recognition model, on each individual text region, for each receipt. That way, we augment the size of our dataset significantly (from 100 receipt images to about (15 text bounding boxes * 100 images)*85% = 1275 training samples and (15*100)*15% = 225 validation samples for the recognition model).
+- Text Detection: Identifying the bounding boxes of text regions in the preprocessed images using morphological operations and contour detection. This step is particularly important for the test set: though we have bounding box annotations the said set, we want to simulate a real-world scenario where no annotations are available at inference time. Given the detection function is based on morphological operations and contour detection, it also extracts artifacts. To mitigate this, we can add artifacts to the training set (by running the detection function on the training images as well) to make the recognition model more robust to such noise. Either way, the function we implemented already adds constraints on the bounding boxes it extracts to filter out some of the artifacts.
+- Text Recognition: Using a deep learning model (which remains to be defined) to recognize text from the detected text regions. The model is trained on the preprocessed bounding box regions extracted from the training set.
+- Post-processing: Extracting the tuples from the recognized text, mainly using regular expressions to identify monetary amounts and common object names on receipts, and formatting the results.
+- Analysis and Evaluation: Evaluating the performance of the OCR system using appropriate metrics (to be defined) and analyzing the results to identify strengths and weaknesses.
+
 ## Author
 
-Gdeterline
+Gdeterline - Guillaume Macquart de Terline - January 2026
