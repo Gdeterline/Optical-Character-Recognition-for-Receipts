@@ -19,7 +19,7 @@ def train(
     model_save_path="./crnn_weights.pth",
     log_file="./training_log.txt",
     device=torch.device("cpu"),
-    train_ratio=0.8,
+    train_ratio=0.85,
     load_weights=False,
     plot_errors=True,
     verbose=True
@@ -84,6 +84,8 @@ def train(
         if verbose:
             print(f"Loading weights from {model_save_path}...")
         model.load_state_dict(torch.load(model_save_path, map_location=device))
+    elif load_weights and not os.path.exists(model_save_path):
+        raise FileNotFoundError(f"Weights file {model_save_path} not found.")
     
     model.to(device)
 
@@ -156,6 +158,17 @@ def train(
                 loss = criterion(outputs.log_softmax(2), targets, input_lengths, target_lengths)
                 val_loss_total += loss.item() * images.size(0)
 
+                # Implement early stopping: if the validation loss starts increasing (the val loss continuously increases for 5 epochs,
+                # by a margin of at least 0.5%), stop training
+                if epoch > 5 and len(val_losses) >= 5:
+                    recent_losses = val_losses[-5:]
+                    if all(recent_losses[i] < recent_losses[i+1] * 0.995 for i in range(4)):
+                        log(f"[{datetime.now()}] Early stopping at epoch {epoch} due to increasing validation loss.")
+                        if verbose:
+                            print(f"Early stopping at epoch {epoch} due to increasing validation loss.")
+                        return model, train_losses, val_losses
+                    
+
         val_loss_total /= len(val_dataset)
         val_losses.append(val_loss_total)
         log(f"[{datetime.now()}] Epoch {epoch}/{epochs} - Validation loss: {val_loss_total:.4f}")
@@ -194,7 +207,7 @@ def train(
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    train(
+    model, train_losses, val_losses = train(
         json_annotations_path="data/filename_to_word_files.json",
         batch_size=16,
         epochs=80,
@@ -202,8 +215,22 @@ if __name__ == "__main__":
         model_save_path="./crnn_weights.pth",
         log_file="./training_log.txt",
         device=device,
-        train_ratio=0.8,
-        load_weights=True,
+        train_ratio=0.85,
+        load_weights=False,
         plot_errors=True,
         verbose=True
     )
+    
+    print("Training complete.")
+    
+    # Display losses vs epochs
+    plt.figure()
+    plt.plot(range(1, len(train_losses) + 1), train_losses, label="Train Loss")
+    plt.plot(range(1, len(val_losses) + 1), val_losses, label="Validation Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("CTC Loss")
+    plt.title("CRNN Training and Validation Loss")
+    plt.legend()
+    plt.grid()
+    plt.savefig("reports/figures/loss_plot.png")
+    plt.show()
