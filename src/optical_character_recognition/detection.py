@@ -1,7 +1,10 @@
 import cv2
 import numpy as np
+import torch
 
-def detect_text_boxes(binary_img, kernel_size=(20, 1)):
+################################################## MORPHOLOGICAL OPERATIONS #################################################################
+
+def detect_text_boxes_morphology(binary_img, kernel_size=(20, 1)):
     """
     Detects text boxes in a binary image using contour detection.
     The principle is the same as we used for skew detection, but here we dilate more aggressively to capture whole lines of text.
@@ -49,3 +52,26 @@ def detect_text_boxes(binary_img, kernel_size=(20, 1)):
         results.append((x, y, w, h))
         
     return results
+
+
+################################################## DEEP LEARNING #################################################################
+
+class SimplifiedVGG16(torch.nn.Module):
+    # Create a simplified VGG16-like model for bounding box coordinates regression
+    # The model outputs 8 values: (x1, y1, x2, y2, x3, y3, x4, y4) for the 4 corners of the bounding box
+    #### NEED TO ASSESS WHAT DIMENSIONS TO USE FOR THE INPUT IMAGES
+    #### AND EVENTUALLY MODIFY THE PPROCESSING PIPELINE TO RESIZE IMAGES TO THOSE DIMENSIONS ####
+    #### Possibly could do 256x512 ?
+    
+    # The model should be simple, given the limited dataset size (80 images, 20 for validation), and the fact that we want to avoid overfitting.
+    # We can use 3 convolutional layers, each followed by an average/max pooling layer (TBD), and then 2 fully connected layers.
+
+    def __init__(self, num_classes=8):
+        super(SimplifiedVGG16, self).__init__()
+        
+        
+        
+        
+if __name__ == "__main__":
+    model = SimplifiedVGG16(num_classes=4)
+    print(f"Model has {model.count_parameters()} trainable parameters.")
