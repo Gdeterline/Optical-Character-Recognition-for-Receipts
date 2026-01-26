@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from PIL import Image
 import torchvision.transforms as T
+import matplotlib.pyplot as plt
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
@@ -143,8 +144,7 @@ def preprocess_test_set(
     
     if verbose:
         print("Cropping words completed.")
-        print("Starting to build dataloader for the test set...")
-        
+    
     return
 
 def predict_receipt(
@@ -246,7 +246,7 @@ def build_test_dataloader(
     test_dataset = OCRDataset(test_samples, char2idx)
     
     _, test_loader = build_dataloaders(
-        train_dataset=None,
+        train_dataset=test_dataset,
         val_dataset=test_dataset,
         batch_size=8,
     )
@@ -272,6 +272,7 @@ def run_predictions_on_test_set(
     
     # Load the trained model
     model = load_model(model_path, num_classes, device)
+    model.eval()
     
     # Compute, over the number_of_samples samples from the test set, the average cer and the word accuracy
     total_cer = 0.0
@@ -302,7 +303,7 @@ def run_predictions_on_test_set(
             total_words += 1
             
             total_chars += len(gt)
-            total_errors += cer * len(gt)
+            total_errors += cer_value * len(gt)
             
     average_cer = total_errors / total_chars if total_chars > 0 else 0.0
     word_accuracy = total_correct_words / total_words if total_words > 0 else 0.0
@@ -315,5 +316,75 @@ def run_predictions_on_test_set(
 
 
 if __name__ == "__main__":
-    test_loader, char2idx, idx2char, blank_idx, num_classes = preprocess_test_set(
-    )
+    
+    device = torch.device("cpu")
+    chars = extract_charset("data/filename_to_word_files.json")
+    char2idx, idx2char, blank_idx, num_classes = build_vocab(chars)
+    
+    receipts_all_predictions = []
+    model = load_model("crnn_weights_opt.pth", num_classes=num_classes, device=device)
+    
+    
+    for index, filename in enumerate(os.listdir("data/preprocessed_images_test/")):
+        if filename.startswith("test_") and filename.endswith(".png"):
+            print(f"Predicting for receipt: {filename}... {index + 1}/{len(os.listdir('data/preprocessed_images_test/'))}")
+            results = predict_receipt(
+                receipt_filename=filename,
+                output_filename_word_labels="data/filename_to_word_files_test.json",
+                model=model,
+                idx2char=idx2char,
+                blank_idx=blank_idx,
+                device=device
+            )
+            
+            receipts_all_predictions.append({
+                "receipt_filename": filename,
+                "predictions": results
+            })
+            
+            # COmpute cer for this receipt
+            total_chars = 0
+            total_errors = 0
+            for res in results:
+                gt = res["true_word"]
+                pred = res["predicted_word"]
+                total_chars += len(gt)
+                total_errors += cer(gt, pred) * len(gt)
+            
+    # Save all predictions to a JSON file
+    with open("data/test_set_predictions.json", "w") as f:
+        json.dump(receipts_all_predictions, f, indent=4)
+        
+    # Display three few receipts, their predictions and the cer score
+    plt.figure(figsize=(21, 7))
+        
+    for i, receipt_prediction in enumerate(receipts_all_predictions[-3:]):
+        receipt_filename = receipt_prediction["receipt_filename"]
+        predictions = receipt_prediction["predictions"]
+        
+        total_chars = 0
+        total_errors = 0
+        for res in predictions:
+            gt = res["true_word"]
+            pred = res["predicted_word"]
+            total_chars += len(gt)
+            total_errors += cer(gt, pred) * len(gt)
+        
+        receipt_cer = total_errors / total_chars if total_chars > 0 else 0.0
+        
+        # print the ground truths and the predictions for each receipt
+        print(f"\nReceipt: {receipt_filename}")
+        for res in predictions:
+            print(f"True: {res['true_word']}, Predicted: {res['predicted_word']}")
+        
+        plt.subplot(1, 3, i + 1)
+        image_path = os.path.join("data/preprocessed_images_test", receipt_filename)
+        image = Image.open(image_path).convert("L")
+        plt.imshow(image, cmap='gray')
+        plt.title(f"Receipt: {receipt_filename}\nCER: {receipt_cer:.4f}", fontsize=14)
+        plt.axis('off')
+        
+    plt.suptitle("Sample Receipt Predictions from the Test Set", fontsize=16)
+    plt.tight_layout()
+    plt.savefig("reports/figures/sample_receipt_predictions.png")
+    plt.show()
