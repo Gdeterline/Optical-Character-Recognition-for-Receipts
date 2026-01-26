@@ -74,12 +74,8 @@ def load_model(model_path, num_classes, device):
     model.eval()
     return model
 
-
-images_preprocessing_pipeline(raw_images_dir="../data/images", data_subset="test_", segmentation_method="gmm", )
-bboxes_preprocessing_pipeline(metadata_filepath="../data/metadata.pkl", transformations_meta_filepath="data/coordinates_transformation_meta.json", output_filepath="data/preprocessed_bboxes.json", subset="test_", verbose=True)
-
 def preprocess_test_set(
-    raw_images_dir: str = "../data/images", 
+    raw_images_dir: str = "data/images", 
     data_subset: str = "test_", 
     segmentation_method: str = "gmm", 
     n_clusters: int = 2, 
