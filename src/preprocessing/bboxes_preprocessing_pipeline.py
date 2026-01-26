@@ -6,7 +6,7 @@ import numpy as np
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from preprocessing.utils import transform_point
 
-def bboxes_preprocessing_pipeline(metadata_filepath: str = "../data/metadata.pkl", transformations_meta_filepath: str = "data/coordinates_transformation_meta.json", output_filepath: str = "data/preprocessed_bboxes.json", verbose: bool = False):
+def bboxes_preprocessing_pipeline(metadata_filepath: str = "../data/metadata.pkl", transformations_meta_filepath: str = "data/coordinates_transformation_meta.json", output_filepath: str = "data/preprocessed_bboxes.json", subset: str = "dev_", verbose: bool = False):
     """
     Preprocess bounding boxes according to the transformations applied to the images during preprocessing.
     This function reads the original bounding boxes and the transformation metadata, applies the transformations
@@ -20,6 +20,8 @@ def bboxes_preprocessing_pipeline(metadata_filepath: str = "../data/metadata.pkl
             Path to the json file containing the transformations metadata for each image.
         output_filepath (str): 
             Path to save the preprocessed bounding boxes as a json file.
+        subset (str):
+            Subset of the dataset to process (e.g., "dev_" or "test_").
         verbose (bool): 
             If True, prints progress and debug information.
             
@@ -38,8 +40,12 @@ def bboxes_preprocessing_pipeline(metadata_filepath: str = "../data/metadata.pkl
         
     file_names = metadata['file_name']
     
-    # Restrict filenames and bboxes to only those where the filename starts with 'dev_' 
-    file_names = file_names[file_names.str.startswith('dev_')]
+    # Ensure subset is either 'dev_' or 'test_'
+    if subset not in ['dev_', 'test_']:
+        raise ValueError("subset parameter must be either 'dev_' or 'test_'")
+    
+    # Restrict filenames and bboxes to only those where the filename starts with 'dev_' or 'test_' (based on input)
+    file_names = file_names[file_names.str.startswith(subset)]
     
     bboxes_list = metadata['bboxes']
     bboxes_list = bboxes_list[file_names.index]
