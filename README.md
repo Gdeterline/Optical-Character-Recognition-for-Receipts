@@ -10,6 +10,7 @@ This repository contains code for extracting the total amount from receipt image
 - [File Structure](#file-structure)
 - [Usage](#usage)
 - [Main Pipeline](#main-pipeline)
+- [Examples of Predictions](#examples-of-predictions)
 - [Author](#author)
 
 ## Abstract
@@ -46,11 +47,15 @@ Optical-Character-Recognition-for-Receipts/
 │   │   ├── dev_receipt_00000_preprocessed.png      # Preprocessed version of the receipt image
 │   │   └── ...                                     # More preprocessed images
 │   │
+│   ├── filename_to_word_files.json                 # Mapping of filenames to their corresponding word-level annotations and the bounding boxes cropped from the images
+│   │
+│   ├── ...
 │   └── metadata.pkl                                # Annotations for the images - ground truth data
 │
 ├── src/                                            # Source code
 │   ├── preprocessing/                              # Image preprocessing scripts
 │   │   ├── utils.py                                # Utility functions for preprocessing (deskewing, normalizing, etc.)
+│   │   ├── ...                                     # Additional preprocessing modules
 │   │   └── preprocessing_pipeline.py               # Main preprocessing pipeline for the raw images
 │   │
 │   ├── dataset/                                    # Dataset handling scripts
@@ -66,12 +71,13 @@ Optical-Character-Recognition-for-Receipts/
 │   │   ├── metrics.py                              # Functions to compute evaluation metrics
 │   │   └── evaluate_model.py                       # Script to evaluate model performance
 │   │
-│   └── postprocessing/                             # Post-processing scripts
+│   └── postprocessing/                             # Post-processing scripts - The folder is empty for now.
 │       └── utils.py                                # Functions for post-processing (e.g., regex for amount extraction, validation, etc.)
 │
 ├── notebooks/                                      # Jupyter notebooks for exploration and experimentation (not part of the main pipeline)
 │   ├── exploring_preprocessing.ipynb               # Exploring preprocessing techniques (to remove background, explore annotations, etc.)
 │   ├── denoising_images.ipynb                      # Experimenting with image denoising and wrinkle removal using morphological operations
+│   ├── ...
 │   └── textbox_detection.ipynb                     # Experimenting with text detection using morphological operations and contour detection
 │
 ├── reports/
@@ -113,6 +119,71 @@ The Optical Character Recognition pipeline for the receipt dataset consists of t
 - **Text Recognition**: Using a deep learning model (which remains to be defined) to recognize text from the detected text regions. The model is trained on the preprocessed bounding box regions extracted from the training set.
 - **Post-processing**: Extracting the tuples from the recognized text, mainly using regular expressions to identify monetary amounts and common object names on receipts, and formatting the results.
 - **Analysis and Evaluation**: Evaluating the performance of the OCR system using appropriate metrics (to be defined) and analyzing the results to identify strengths and weaknesses.
+
+
+## Examples of Predictions
+
+
+|    Receipt Filename    | Ground Truth |  Prediction  |
+| :--------------------: | :----------: | :----------: |
+|                        |  1001-Choco  |   O01-Choc   |
+|                        |     Bun      |      Bu      |
+|                        |    22.000    |    22.000    |
+|                        |      x1      |      x1      |
+|                        |    22.000    |    22.000    |
+|                        | 6001-Plastic |  6MOH-PIatt  |
+|                        |     Bag      |     Bag      |
+| test_receipt_00079.png |    Small     |    Saall     |
+|                        |      0       |      0       |
+|                        |      x1      |      x1      |
+|                        |      0       |      0       |
+|                        |    Total     |    Total     |
+|                        |    Item:     |    Item:     |
+|                        |      2       |      2       |
+|                        |    22.000    |    22.000    |
+|                        |    22.000    |    22.000    |
+
+
+|    Receipt Filename    | Ground Truth |  Prediction  |
+| :--------------------: | :----------: | :----------: |
+|                        |      1       |      1       |
+|                        | Cheezemania  |  Cheaemania  |
+|                        |    9,500     |    9,500     |
+|                        |      1       |      1       |
+|                        |   Mamamia    |   Mamamia    |
+|                        |    12,500    |    12,500    |
+|                        |   SUBTOTAL   |   SUBTOTAL   |
+|                        |    22,000    |    22,000    |
+|                        |     DUE      |     DLE      |
+| test_receipt_00086.png |    22,000    |    22,000    |
+|                        |     CASH     |     CASH     |
+|                        |    52,000    |    52,000    |
+|                        |    CHANGE    |    CHANGE    |
+|                        |    30,000    |    30,000    |
+|                        |      2       |      2       |
+|                        |     ITEM     |     ITEM     |
+|                        |    TOTAL     |    TOTAL     |
+|                        |     QTY      |      CT      |
+|                        |      2       |              |
+|                        |     PCS      |     PCS      |
+
+
+|    Receipt Filename    | Ground Truth |  Prediction  |
+| :--------------------: | :----------: | :----------: |
+|                        |    901016    |    901016    |
+|                        |   - TICKET   |    -TICKE    |
+|                        |      CP      |      CP      |
+|                        |      4       |      4       |
+|                        |    60.000    |    60.000    |
+|                        |   240,000    |    20.000    |
+| test_receipt_00092.png |  (Qty=4.00)  |   Ota4.00    |
+|                        |    TOTAL     |    TOTAL     |
+|                        |   240.000    |   240.000    |
+|                        |     CASH     |     CASH     |
+|                        |   250.000    |   250.000    |
+|                        |    CHANGE    |    CHANGE    |
+|                        |    10,000    |    10.000    |      
+
 
 ## Author
 
