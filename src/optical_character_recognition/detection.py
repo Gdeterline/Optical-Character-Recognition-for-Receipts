@@ -54,7 +54,11 @@ def detect_text_boxes_morphology(binary_img, kernel_size=(20, 1)):
     return results
 
 
-################################################## DEEP LEARNING #################################################################
+################################################## DEEP LEARNING (REALLY NEEDED ?) #################################################################
+###### Perhaps there are not enough data to train a deep learning model for text box detection. Need to assess if detection via morphological
+###### operations is sufficient first. To do that, we will need to train a recognition model on the detected boxes, and see if the 
+###### performance is good enough. If not, we can consider training a deep learning model for detection. Otherwise, it may be overkill
+###### Plus we have a big challenge in terms of image sizes, as receipts are often very tall and thin, which is not ideal for CNNs.
 
 class SimplifiedVGG16(torch.nn.Module):
     # Create a simplified VGG16-like model for bounding box coordinates regression
