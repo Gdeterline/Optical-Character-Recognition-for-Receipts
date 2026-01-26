@@ -162,7 +162,7 @@ class OCRDataset(Dataset):
         img_path, text = self.samples[idx]
 
         # the file_names in the json are stored as data/... so we need to go one directory up
-        image = Image.open(os.path.join(os.pardir, img_path)).convert("L")
+        image = Image.open(img_path).convert("L")
 
         # convert to tensor [1, 128, 128]
         image = self.to_tensor(image)
