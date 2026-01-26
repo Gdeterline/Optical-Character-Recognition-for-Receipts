@@ -67,8 +67,11 @@ def resize_image(image_path: str, output_path: str, new_width: int, new_height: 
     -------
         PIL.Image.Image: 
             The resized image.
+        (int, int):
+            The original (width, height) of the image.
     """
     img = Image.open(image_path)
+    orig_w, orig_h = img.size
     img_resized = img.resize((new_width, new_height), Image.BICUBIC)
     
     if save:
@@ -82,7 +85,7 @@ def resize_image(image_path: str, output_path: str, new_width: int, new_height: 
     # Convert back to OpenCV format
     img_resized = cv2.cvtColor(np.array(img_resized), cv2.COLOR_RGB2BGR)
         
-    return img_resized
+    return img_resized, (orig_w, orig_h)
 
 
 def segment_image_kmeans(image: np.ndarray, n_clusters: int = 2) -> np.ndarray:
@@ -218,12 +221,15 @@ def crop_to_receipt(image: np.ndarray, receipt_mask: np.ndarray) -> np.ndarray:
     Returns
         np.ndarray: 
             The cropped image containing only the receipt area.
+        bbox (tuple): 
+            The (x, y, w, h) of the crop with respect to the input image.
     """
     # Find contours of the receipt area
     contours, _ = cv2.findContours(receipt_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
+    # In case of no crop, return
     if not contours:
-        return image  # No contours found, return original image
+        return image, (0, 0, image.shape[1], image.shape[0])  # No contours found, return original image and full-frame box
 
     # Get the bounding box of the largest contour
     largest_contour = max(contours, key=cv2.contourArea)
@@ -232,7 +238,7 @@ def crop_to_receipt(image: np.ndarray, receipt_mask: np.ndarray) -> np.ndarray:
     # Crop the image to the bounding box
     cropped_image = image[y:y+h, x:x+w]
 
-    return cropped_image
+    return cropped_image, (x, y, w, h)
 
 
 def check_if_second_cropping_needed(cropped_image: np.ndarray, threshold: float = 0.85) -> bool:
@@ -253,16 +259,21 @@ def check_if_second_cropping_needed(cropped_image: np.ndarray, threshold: float 
         bool: 
             True if a second cropping is needed, False otherwise.
     """
+    
+    if cropped_image.size == 0: return False    # Empty image, no second cropping
+    
     segmented_image = segment_image_gmm(cropped_image, n_components=2)
     unique, counts = np.unique(segmented_image, return_counts=True)
+    
     largest_cluster_area = np.max(counts)
     total_area = cropped_image.shape[0] * cropped_image.shape[1]
+    
     coverage_ratio = largest_cluster_area / total_area
     
     return coverage_ratio < threshold
 
 
-def perform_second_cropping(cropped_image, raw_images_dir: str, segmentation_method: str = 'gmm', n_clusters: int = 3) -> np.ndarray:
+def perform_second_cropping(cropped_image, raw_images_dir, segmentation_method='gmm', n_clusters=3):
     """
     Perform a second cropping on the cropped image.
     
@@ -275,11 +286,13 @@ def perform_second_cropping(cropped_image, raw_images_dir: str, segmentation_met
         n_clusters (int, optional):
             The number of clusters/components for segmentation. Defaults to 3, to better separate receipt from non-receipt areas.
             Assumes that the cropping with n_clusters=2 was insufficient.
-            
+    
     Returns
     -------
-        np.ndarray: 
-            The further cropped image containing only the receipt area.
+        final_image (np.ndarray): 
+            The result image.
+        crop_box (tuple): 
+            The (x, y, w, h) of this second crop relative to the input `cropped_image`.
     """
     # Step 1: Segment the cropped image
     if segmentation_method == 'kmeans':
@@ -290,77 +303,126 @@ def perform_second_cropping(cropped_image, raw_images_dir: str, segmentation_met
     # Step 2: Extract the receipt cluster
     receipt_mask = extract_receipt_cluster_central(segmented_image)
     
-    # Step 3: Crop the image to the receipt area
-    further_cropped_image = crop_to_receipt(cropped_image, receipt_mask)
+    # Step 3: Crop the image to the receipt area (getting the crop box as well)
+    further_cropped_image, (x2, y2, w2, h2) = crop_to_receipt(cropped_image, receipt_mask)
+    
+    # Step 4: Resize back to standard size
     avg_width, avg_height = compute_average_image_size(raw_images_dir)
-    new_width = compute_nearest_32_multiple(avg_width)
-    new_height = compute_nearest_32_multiple(avg_height)
-    further_cropped_image = cv2.resize(further_cropped_image, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
+    target_w = compute_nearest_32_multiple(avg_width)
+    target_h = compute_nearest_32_multiple(avg_height)
     
-    # The image is now further cropped, and the channels are kept as in the original image (BGR)
+    final_image = cv2.resize(further_cropped_image, (target_w, target_h), interpolation=cv2.INTER_CUBIC)
     
-    return further_cropped_image
+    return final_image, (x2, y2, w2, h2)
 
 
-def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_method: str = 'gmm', n_clusters: int = 2, second_cropping_threshold: float = 0.85, verbose: bool = False) -> np.ndarray:
+def transform_point(x, y, meta):
     """
-    Complete cropping pipeline to resize, segment, extract receipt cluster, and crop the image, with optional second cropping if needed.
-
+    Transform a point's coordinates to the new image space based on the preprocessing steps the image underwent.
+    That way, we can map points (and therefore bboxes) from the original image to the preprocessed image.
+    
     Parameters
     ----------
-        raw_images_dir (str): 
-            Path to the directory containing raw images.
-        image_filename (str): 
-            The filename of the image to process.
-        segmentation_method (str, optional): 
-            The segmentation method to use ('kmeans' or 'gmm'). Defaults to 'gmm'.
-        n_clusters (int, optional):
-            The number of clusters/components for segmentation. Defaults to 2.
-        verbose (bool, optional):
-            Whether to print verbose output. Defaults to False.
-    Returns
-    -------
-
+    x (int):
+        The x-coordinate of the point.
+    y (int):
+        The y-coordinate of the point.
+    meta (dict):
+        Dictionary containing metadata about the transformations applied to the image.
     """
-    image_path = os.path.join(raw_images_dir, image_filename)
+    # Step 1. First resize
+    x *= meta['scale_1'][0]
+    y *= meta['scale_1'][1]
     
-    # Step 1: Resize the image
-    avg_width, avg_height = compute_average_image_size(raw_images_dir)
-    new_width = compute_nearest_32_multiple(avg_width)
-    new_height = compute_nearest_32_multiple(avg_height)
-    resized_image = resize_image(image_path, None, new_width, new_height, save=False)
+    # Step 2. First crop 
+    x -= meta['crop_1'][0]
+    y -= meta['crop_1'][1]
     
-    # Step 2: Segment the image
-    if segmentation_method == 'kmeans':
-        segmented_image = segment_image_kmeans(resized_image, n_clusters=n_clusters)
-    else:
-        segmented_image = segment_image_gmm(resized_image, n_components=n_clusters)
+    # Step 3. Scale up based on first crop
+    x *= meta['scale_2'][0]
+    y *= meta['scale_2'][1]
     
-    # Step 3: Extract the receipt cluster
-    receipt_mask = extract_receipt_cluster_central(segmented_image)
-    
-    # Step 4: Crop the image to the receipt area
-    cropped_image = crop_to_receipt(resized_image, receipt_mask)
-    
-    # Step 5: Resize cropped image back to original average size
-    cropped_image = cv2.resize(cropped_image, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
-    
-    # First "smart" cropping is done. Image channels are BGR.
-    
-    if verbose:
-        print(f"    First cropping done for image {image_filename}.")
-    
-    # Step 6: Check if second cropping is needed
-    needs_second_cropping = check_if_second_cropping_needed(cropped_image, threshold=second_cropping_threshold)
-    if needs_second_cropping:
-        if verbose:
-            print(f"    Second cropping needed for image {image_filename}.")
-        cropped_image2 = perform_second_cropping(cropped_image, raw_images_dir, segmentation_method='gmm', n_clusters=3)
-        if verbose:
-            print(f"    Second cropping done for image {image_filename}.")
-        return cropped_image2, True
+    # Step 4. Second crop in case there were any
+    if meta['crop_2'] != (0, 0):
+        x -= meta['crop_2'][0]
+        y -= meta['crop_2'][1]
         
-    return cropped_image, False
+        # Step 5. Scale up based on second crop (again, if there were any)
+        x *= meta['scale_3'][0]
+        y *= meta['scale_3'][1]
+        
+    # Step 6. Deskewing (Rotation)
+    angle = meta['deskew_angle']
+    # We create the exact same rotation matrix used in rotate_image()
+    center = (meta['target_dim'][0] / 2, meta['target_dim'][1] / 2)
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    # Apply the matrix to the point: [x', y'] = M * [x, y, 1]
+    new_pt = np.dot(M, [x, y, 1])
+    
+    # Return the transformed coordinates as integers
+    return int(new_pt[0]), int(new_pt[1])
+
+
+### Cropping Pipeline no longer used, replaced by the full pipeline function
+# def cropping_pipeline(raw_images_dir: str, image_filename: str, segmentation_method: str = 'gmm', n_clusters: int = 2, second_cropping_threshold: float = 0.85, verbose: bool = False) -> np.ndarray:
+#     """
+#     Complete cropping pipeline to resize, segment, extract receipt cluster, and crop the image, with optional second cropping if needed.
+
+#     Parameters
+#     ----------
+#         raw_images_dir (str): 
+#             Path to the directory containing raw images.
+#         image_filename (str): 
+#             The filename of the image to process.
+#         segmentation_method (str, optional): 
+#             The segmentation method to use ('kmeans' or 'gmm'). Defaults to 'gmm'.
+#         n_clusters (int, optional):
+#             The number of clusters/components for segmentation. Defaults to 2.
+#         verbose (bool, optional):
+#             Whether to print verbose output. Defaults to False.
+#     Returns
+#     -------
+
+#     """
+#     image_path = os.path.join(raw_images_dir, image_filename)
+    
+#     # Step 1: Resize the image
+#     avg_width, avg_height = compute_average_image_size(raw_images_dir)
+#     new_width = compute_nearest_32_multiple(avg_width)
+#     new_height = compute_nearest_32_multiple(avg_height)
+#     resized_image = resize_image(image_path, None, new_width, new_height, save=False)
+    
+#     # Step 2: Segment the image
+#     if segmentation_method == 'kmeans':
+#         segmented_image = segment_image_kmeans(resized_image, n_clusters=n_clusters)
+#     else:
+#         segmented_image = segment_image_gmm(resized_image, n_components=n_clusters)
+    
+#     # Step 3: Extract the receipt cluster
+#     receipt_mask = extract_receipt_cluster_central(segmented_image)
+    
+#     # Step 4: Crop the image to the receipt area
+#     cropped_image = crop_to_receipt(resized_image, receipt_mask)
+    
+#     # Step 5: Resize cropped image back to original average size
+#     cropped_image = cv2.resize(cropped_image, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
+    
+#     # First "smart" cropping is done. Image channels are BGR.
+    
+#     if verbose:
+#         print(f"    First cropping done for image {image_filename}.")
+    
+#     # Step 6: Check if second cropping is needed
+#     needs_second_cropping = check_if_second_cropping_needed(cropped_image, threshold=second_cropping_threshold)
+#     if needs_second_cropping:
+#         if verbose:
+#             print(f"    Second cropping needed for image {image_filename}.")
+#         cropped_image2 = perform_second_cropping(cropped_image, raw_images_dir, segmentation_method='gmm', n_clusters=3)
+#         if verbose:
+#             print(f"    Second cropping done for image {image_filename}.")
+#         return cropped_image2, True
+        
+#     return cropped_image, False
 
 
 ############# Denoising, Binarization and Deskewing Utilities #############
