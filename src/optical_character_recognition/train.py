@@ -146,6 +146,7 @@ def train(
         plt.ylabel("CTC Loss")
         plt.title("CRNN Training and Validation Loss")
         plt.legend()
+        plt.grid()
         plt.savefig("reports/figures/loss_plot.png")
         plt.show()
 
