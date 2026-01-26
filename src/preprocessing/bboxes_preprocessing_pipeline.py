@@ -35,6 +35,7 @@ def bboxes_preprocessing_pipeline(metadata_filepath: str = "../data/metadata.pkl
     # Load original metadata with bounding boxes
     if verbose:
         print(f"Loading original metadata from {metadata_filepath}...")
+        
     with open(metadata_filepath, 'rb') as f:
         metadata = pickle.load(f)
         
@@ -48,7 +49,9 @@ def bboxes_preprocessing_pipeline(metadata_filepath: str = "../data/metadata.pkl
     file_names = file_names[file_names.str.startswith(subset)]
     
     bboxes_list = metadata['bboxes']
+    print(len(bboxes_list))
     bboxes_list = bboxes_list[file_names.index]
+    print(len(bboxes_list))
     
     if verbose:
         print(f"Loaded metadata for {len(file_names)} images.")
@@ -69,7 +72,7 @@ def bboxes_preprocessing_pipeline(metadata_filepath: str = "../data/metadata.pkl
             print(f"Processing bounding boxes for image: {file_name} ({idx + 1}/{len(file_names)})")
         
         index = file_names.values.tolist().index(file_name)
-        original_boxes = bboxes_list[index]
+        original_boxes = bboxes_list.iloc[index]
         
         if file_name not in bboxes_dict:
                 bboxes_dict[file_name] = []
@@ -98,10 +101,11 @@ def bboxes_preprocessing_pipeline(metadata_filepath: str = "../data/metadata.pkl
     return bboxes_dict
 
 if __name__ == "__main__":
-    # Preprocessing the bounding bounding boxes for the dev set
+    # Preprocessing the bounding bounding boxes for the test set
     preprocessed_bboxes = bboxes_preprocessing_pipeline(
         metadata_filepath="data/metadata.pkl",
-        transformations_meta_filepath="data/coordinates_transformation_meta.json",
-        output_filepath="data/preprocessed_bboxes.json",
+        transformations_meta_filepath="data/coordinates_transformation_meta_test.json",
+        output_filepath="data/preprocessed_bboxes_test.json",
+        subset="test_",
         verbose=True
     )
