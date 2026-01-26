@@ -4,6 +4,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from datetime import datetime
 import matplotlib.pyplot as plt
+import time
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
@@ -65,8 +66,10 @@ def train(
     # Training loop
     train_losses = []
     val_losses = []
+    epoch_times = []
 
     for epoch in range(1, epochs + 1):
+        start_time = time.time()
         if verbose:
             print(f"Epoch {epoch}/{epochs}")
         model.train()
@@ -120,8 +123,16 @@ def train(
         val_loss_total /= len(val_dataset)
         val_losses.append(val_loss_total)
         log(f"[{datetime.now()}] Epoch {epoch}/{epochs} - Validation loss: {val_loss_total:.4f}")
+
+        end_time = time.time()
+        epoch_duration = end_time - start_time
+        epoch_times.append(epoch_duration)
+        avg_time = sum(epoch_times) / len(epoch_times)
+        remaining_time = avg_time * (epochs - epoch)
+
         if verbose:
             print(f"Epoch {epoch}/{epochs} - Training Loss: {epoch_loss:.4f} - Validation loss: {val_loss_total:.4f}")
+            print(f"Epoch duration: {epoch_duration:.2f}s - Average: {avg_time:.2f}s - ETA: {remaining_time:.0f}s")
         # Save model after each epoch
         torch.save(model.state_dict(), model_save_path)
 
