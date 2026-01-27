@@ -91,7 +91,7 @@ def train(
 
     # Defining Loss and optimizer
     criterion = nn.CTCLoss(blank=blank_idx, zero_infinity=True)
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
 
     # Logging setup
     if os.path.exists(log_file):
@@ -105,6 +105,11 @@ def train(
     train_losses = []
     val_losses = []
     epoch_times = []
+    
+    # Early stopping setup
+    best_val_loss = float('inf')
+    patience = 5
+    patience_counter = 0
 
     for epoch in range(1, epochs + 1):
         start_time = time.time()
@@ -158,19 +163,28 @@ def train(
                 loss = criterion(outputs.log_softmax(2), targets, input_lengths, target_lengths)
                 val_loss_total += loss.item() * images.size(0)
 
-                # Implement early stopping: if val loss increases significantly, stop training
-                # For instance, with all(recent_losses[j] < recent_losses[j+1] * 1.1 for j in range(4)):
-                if epoch > 5:
-                    recent_losses = val_losses[-5:]
-                    if all(recent_losses[j] < recent_losses[j+1] * 1.1 for j in range(4)):
-                        log(f"[{datetime.now()}] Early stopping triggered at epoch {epoch} due to increasing validation loss.")
-                        if verbose:
-                            print(f"Early stopping triggered at epoch {epoch} due to increasing validation loss.")
-                        return model, train_losses, val_losses
-
         val_loss_total /= len(val_dataset)
         val_losses.append(val_loss_total)
         log(f"[{datetime.now()}] Epoch {epoch}/{epochs} - Validation loss: {val_loss_total:.4f}")
+        
+        # Early stopping check
+        if val_loss_total < best_val_loss:
+            best_val_loss = val_loss_total
+            torch.save(model.state_dict(), model_save_path)
+            patience_counter = 0
+            if verbose:
+                print(f"New best validation loss: {best_val_loss:.4f} - Model saved.")
+        else:
+            patience_counter += 1
+            if verbose:
+                print(f"No improvement. Patience: {patience_counter}/{patience}")
+            if patience_counter >= patience:
+                log(f"[{datetime.now()}] Early stopping triggered at epoch {epoch} after {patience} epochs without improvement.")
+                if verbose:
+                    print(f"Early stopping triggered at epoch {epoch} after {patience} epochs without improvement.")
+                # Load the best model before returning
+                model.load_state_dict(torch.load(model_save_path, map_location=device))
+                return model, train_losses, val_losses
 
         end_time = time.time()
         epoch_duration = end_time - start_time
@@ -182,9 +196,10 @@ def train(
         if verbose:
             print(f"Epoch {epoch}/{epochs} - Training Loss: {epoch_loss:.4f} - Validation loss: {val_loss_total:.4f}")
             print(f"Epoch duration: {epoch_duration:.2f}s - Average: {avg_time:.2f}s - ETA: {remaining_time_format}")
-        # Save model after each epoch
-        torch.save(model.state_dict(), model_save_path)
 
+    # Load best model at the end of training
+    model.load_state_dict(torch.load(model_save_path, map_location=device))
+    
     # Plot losses
     if plot_errors:
         plt.figure()
@@ -195,7 +210,7 @@ def train(
         plt.title("CRNN Training and Validation Loss")
         plt.legend()
         plt.grid()
-        plt.savefig("reports/figures/loss_plot.png")
+        plt.savefig("reports/figures/loss_plot_dropout.png")
         plt.show()
 
     log("Training finished and model saved.")
@@ -209,10 +224,10 @@ if __name__ == "__main__":
     model, train_losses, val_losses = train(
         json_annotations_path="data/filename_to_word_files.json",
         batch_size=16,
-        epochs=80,
+        epochs=40,
         lr=5e-4,
-        model_save_path="./crnn_weights.pth",
-        log_file="./training_log.txt",
+        model_save_path="./crnn_weights_dropout.pth",
+        log_file="./training_log_dropout.txt",
         device=device,
         train_ratio=0.85,
         load_weights=False,
@@ -231,5 +246,5 @@ if __name__ == "__main__":
     plt.title("CRNN Training and Validation Loss")
     plt.legend()
     plt.grid()
-    plt.savefig("reports/figures/loss_plot.png")
+    plt.savefig("reports/figures/loss_plot_dropout.png")
     plt.show()
