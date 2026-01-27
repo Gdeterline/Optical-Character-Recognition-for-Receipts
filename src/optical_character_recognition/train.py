@@ -230,7 +230,7 @@ if __name__ == "__main__":
         log_file="./training_log_dropout.txt",
         device=device,
         train_ratio=0.85,
-        load_weights=False,
+        load_weights=True,
         plot_errors=True,
         verbose=True
     )
