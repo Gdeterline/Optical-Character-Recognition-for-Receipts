@@ -68,8 +68,7 @@ Optical-Character-Recognition-for-Receipts/
 │   │   └── training_pipeline.py                    # Pipeline for training the recognition model
 │   │
 │   ├── evaluation/                                 # Evaluation scripts
-│   │   ├── metrics.py                              # Functions to compute evaluation metrics
-│   │   └── evaluate_model.py                       # Script to evaluate model performance
+│   │   └── utils.py                                # Utility functions for evaluating the OCR performance
 │   │
 │   └── postprocessing/                             # Post-processing scripts
 │       └── postprocessing.py                       # Functions for post-processing (e.g., regex for amount extraction, validation, etc.)
