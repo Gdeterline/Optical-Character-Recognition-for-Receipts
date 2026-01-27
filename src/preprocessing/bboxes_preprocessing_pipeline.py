@@ -50,7 +50,7 @@ def bboxes_preprocessing_pipeline(metadata_filepath: str = "../data/metadata.pkl
     
     bboxes_list = metadata['bboxes']
     print(len(bboxes_list))
-    bboxes_list = bboxes_list[file_names.index]
+    bboxes_list = bboxes_list.iloc[file_names.index]
     print(len(bboxes_list))
     
     if verbose:
