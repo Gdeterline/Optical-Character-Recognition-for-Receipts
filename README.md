@@ -71,8 +71,8 @@ Optical-Character-Recognition-for-Receipts/
 │   │   ├── metrics.py                              # Functions to compute evaluation metrics
 │   │   └── evaluate_model.py                       # Script to evaluate model performance
 │   │
-│   └── postprocessing/                             # Post-processing scripts - The folder is empty for now.
-│       └── utils.py                                # Functions for post-processing (e.g., regex for amount extraction, validation, etc.)
+│   └── postprocessing/                             # Post-processing scripts
+│       └── postprocessing.py                       # Functions for post-processing (e.g., regex for amount extraction, validation, etc.)
 │
 ├── notebooks/                                      # Jupyter notebooks for exploration and experimentation (not part of the main pipeline)
 │   ├── exploring_preprocessing.ipynb               # Exploring preprocessing techniques (to remove background, explore annotations, etc.)
