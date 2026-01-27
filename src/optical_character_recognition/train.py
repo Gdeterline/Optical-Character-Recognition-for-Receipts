@@ -224,7 +224,7 @@ if __name__ == "__main__":
     model, train_losses, val_losses = train(
         json_annotations_path="data/filename_to_word_files.json",
         batch_size=16,
-        epochs=40,
+        epochs=80,
         lr=5e-4,
         model_save_path="./crnn_weights_dropout.pth",
         log_file="./training_log_dropout.txt",
