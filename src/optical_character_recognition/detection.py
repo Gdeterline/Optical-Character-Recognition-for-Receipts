@@ -77,5 +77,4 @@ class SimplifiedVGG16(torch.nn.Module):
         
         
 if __name__ == "__main__":
-    model = SimplifiedVGG16(num_classes=4)
-    print(f"Model has {model.count_parameters()} trainable parameters.")
+    pass
