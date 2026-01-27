@@ -123,6 +123,7 @@ The Optical Character Recognition pipeline for the receipt dataset consists of t
 
 ## Examples of Predictions
 
+The predictions below were made on the test set using the full OCR pipeline. Please note that the model used here is not the final optimized version, and further improvements have been made since.
 
 |    Receipt Filename    | Ground Truth |  Prediction  |
 | :--------------------: | :----------: | :----------: |
