@@ -1,0 +1,619 @@
+receipt_filename,object,amount
+dev_receipt_00000.png,1 REAL GANACHE,"16,500"
+dev_receipt_00000.png,1 EGG TART,"13,000"
+dev_receipt_00000.png,1 PIZZA TOAST,"16,000"
+dev_receipt_00000.png,TOTAL,"45,500"
+dev_receipt_00000.png,CASH,"50,000"
+dev_receipt_00000.png,CHANGE,"4,500"
+dev_receipt_00001.png,Kopi Susu Kolonel 1,23.000
+dev_receipt_00001.png,Total,23.000
+dev_receipt_00001.png,Tunai,50.000
+dev_receipt_00001.png,Kembali,27.000
+dev_receipt_00002.png,"1 S-Omaltime 20,000","20,000"
+dev_receipt_00002.png,PB1:,"1,818"
+dev_receipt_00002.png,Subtotal:,"18,181"
+dev_receipt_00002.png,Total:,"20,000"
+dev_receipt_00002.png,Cash:,"100,000"
+dev_receipt_00002.png,CHANGE:,"80,000"
+dev_receipt_00003.png,"1X MCaramel Black Tea @28,000","28,000"
+dev_receipt_00003.png,PB1:,0
+dev_receipt_00003.png,Subtotal:,"28,000"
+dev_receipt_00003.png,Total:,"28,000"
+dev_receipt_00003.png,Cash:,"28,000"
+dev_receipt_00003.png,CHANGE:,0
+dev_receipt_00004.png,BBQ Chicken,"41,000"
+dev_receipt_00004.png,1 Sedang,0
+dev_receipt_00004.png,1,"41,000"
+dev_receipt_00004.png,Total.,50.000
+dev_receipt_00004.png,PayCash Coarge,"9,000"
+dev_receipt_00005.png,LE MINERAL,"8,000"
+dev_receipt_00005.png,NET1 AMT,"7,273"
+dev_receipt_00005.png,TAX AMT,727
+dev_receipt_00005.png,TOTAL,"8,000"
+dev_receipt_00005.png,CASH,"8,000"
+dev_receipt_00006.png,1 POTAT0 SAUSAGE BREAD,"19,000"
+dev_receipt_00006.png,1 OREO GREEN TEA SPREAD,"i2,000"
+dev_receipt_00006.png,1 NHITE CHOCO BANANA SPREAD,"12,000"
+dev_receipt_00006.png,TOTAL,"123,000"
+dev_receipt_00006.png,CARD,"123,000"
+dev_receipt_00007.png,Choco Devil,"63,"
+dev_receipt_00007.png,360 Club Card,"-9,"
+dev_receipt_00007.png,SubTotal:,"63,"
+dev_receipt_00007.png,iscunt:,"-9,"
+dev_receipt_00007.png,PB1:,5
+dev_receipt_00007.png,Total:,"59,"
+dev_receipt_00008.png,3X,@6500
+dev_receipt_00008.png,TALAM UNGU,"19,500"
+dev_receipt_00008.png,DISC ITEM,-40.000%
+dev_receipt_00008.png,AMOUNT,"-7,800"
+dev_receipt_00008.png,1X,@0
+dev_receipt_00008.png,MIKA KECIL,0
+dev_receipt_00008.png,SUBTOTAL,"11,700"
+dev_receipt_00008.png,TOTAL,"11,700"
+dev_receipt_00008.png,CASH,"20,000"
+dev_receipt_00008.png,CHANGE,"8,300"
+dev_receipt_00009.png,1 Tahu Ikan Oma Giok,20.000
+dev_receipt_00009.png,TOTAL,20.000
+dev_receipt_00009.png,1,1
+dev_receipt_00009.png,1,1
+dev_receipt_00010.png,2 Serbu 1,40.000
+dev_receipt_00010.png,2 Choco Peanut Bread,20.000
+dev_receipt_00010.png,TOTAL,60.000
+dev_receipt_00010.png,CASH,60.000
+dev_receipt_00010.png,CHANGED,0
+dev_receipt_00011.png,Se'I Sapi Sambal Matah ( R ) 1,20.000
+dev_receipt_00011.png,Se''I Sapi Lada Hitam (J) 1,35.000
+dev_receipt_00011.png,Nasi Putih 2,10.000
+dev_receipt_00011.png,Milk Shake Coklat 1,16.000
+dev_receipt_00011.png,Subtotal,81.000
+dev_receipt_00011.png,PB 1 10%,8.100
+dev_receipt_00011.png,Total,89.100
+dev_receipt_00011.png,Kembali,0
+dev_receipt_00012.png,ES KOPI SUSU 4,72.000
+dev_receipt_00012.png,Total,72.000
+dev_receipt_00012.png,GoPay,72.000
+dev_receipt_00012.png,Kembali,0
+dev_receipt_00013.png,1 MMINERAL 600 ML,"7,727"
+dev_receipt_00013.png,1 BULGOGI RICE R,"33,636"
+dev_receipt_00013.png,Subtotal,"41,364"
+dev_receipt_00013.png,Tax,"4,136"
+dev_receipt_00013.png,Total,"45,500"
+dev_receipt_00013.png,CASH,"50,000"
+dev_receipt_00013.png,Cash CHANGE,"-4,500"
+dev_receipt_00014.png,2 x @ 12.000,24.000
+dev_receipt_00014.png,1 x @ 12.000,12.000
+dev_receipt_00014.png,Subtotal Rp,36.000
+dev_receipt_00014.png,Tax (10.0) Rp,3.600
+dev_receipt_00014.png,Total Rp,39.600
+dev_receipt_00014.png,Other Rp,39.600
+dev_receipt_00015.png,2 12.000,24.000
+dev_receipt_00015.png,2 15.000,30.000
+dev_receipt_00015.png,Subtotal Rp,54.000
+dev_receipt_00015.png,Tax (10.0%) Rp,5.400
+dev_receipt_00015.png,Total Rp,59.400
+dev_receipt_00015.png,Cash Rp,100.000
+dev_receipt_00015.png,Change Rp,40.600
+dev_receipt_00016.png,1,"20,000"
+dev_receipt_00017.png,"1 20,000","20,00o"
+dev_receipt_00017.png,SuBTOTAL,"20,000"
+dev_receipt_00017.png,GRANODTOTAL,"20,000"
+dev_receipt_00017.png,CASHDR,"100,000"
+dev_receipt_00017.png,CHANGEUE,80.000
+dev_receipt_00018.png,beef C roll,3pcs
+dev_receipt_00018.png,"1 10,000","10,000"
+dev_receipt_00018.png,"1 15,000","15,000"
+dev_receipt_00018.png,TOTAL,"25,000"
+dev_receipt_00018.png,CASH,"100,000"
+dev_receipt_00019.png,1 FUTAMI 17 GREEN TEA (CLAS,"12,500"
+dev_receipt_00019.png,1 EGG TART,"13,000"
+dev_receipt_00019.png,1 GRAIN CROOUE MONSIEUR,"17,000"
+dev_receipt_00019.png,TOTAL,"42,500"
+dev_receipt_00019.png,CASH,"50,000"
+dev_receipt_00019.png,CHANGE,"7,500"
+dev_receipt_00020.png,1,1
+dev_receipt_00020.png,1,1
+dev_receipt_00020.png,1,1
+dev_receipt_00020.png,1,1
+dev_receipt_00021.png,1 Mango Lemon Tea Rp,"29,090"
+dev_receipt_00021.png,1 Sliders Set Rp,"113,636"
+dev_receipt_00021.png,1 Chicken Vege Rice Bowl Rp,"86,363"
+dev_receipt_00021.png,1 Discount BCA 15%,"-8p34,363"
+dev_receipt_00021.png,1 1 1,1
+dev_receipt_00021.png,1 1,1
+dev_receipt_00021.png,1,1
+dev_receipt_00021.png,1,1
+dev_receipt_00021.png,1,1
+dev_receipt_00022.png,1 RedMelet Nutella,"280,000"
+dev_receipt_00022.png,SUBTOTAL,"280,000"
+dev_receipt_00022.png,PB1,"28,000"
+dev_receipt_00022.png,TOTAL,"308,000"
+dev_receipt_00022.png,BCA Card,"308,000"
+dev_receipt_00023.png,1 BUBBLE GUM,"18,182"
+dev_receipt_00023.png,Subtotal,"18,182"
+dev_receipt_00023.png,PAJAK 10%,"1,818"
+dev_receipt_00023.png,1 Total,"20,000"
+dev_receipt_00023.png,CASH,20.000
+dev_receipt_00024.png,1 PAIN AU CHOCOLATE,"11,000"
+dev_receipt_00024.png,1 CHOCO CUSTARD PASTRY,"12,000"
+dev_receipt_00024.png,1 MILK PASTRY ROLL,"9,000"
+dev_receipt_00024.png,1 REAL CHEESE INSIDE BREAD,"13,500"
+dev_receipt_00024.png,1 SAUSAGE BREAD,"15,000"
+dev_receipt_00024.png,1 HAM CHEESE FLAT BREAD,"20,000"
+dev_receipt_00024.png,TOTAL,"80,500"
+dev_receipt_00024.png,CASH,"100,000"
+dev_receipt_00024.png,CHANGE,"19,500"
+dev_receipt_00025.png,1Prs Sop Sui Jiao,"33,000"
+dev_receipt_00025.png,1Prs Ha Kaou Udng,"28,000"
+dev_receipt_00025.png,1Prs Sio May Kpting,"23,500"
+dev_receipt_00025.png,1Prs Siomay Kmbinasi,"23,000"
+dev_receipt_00025.png,1Prs Leng Hong Kien,"30,000"
+dev_receipt_00025.png,1Prs MMie Kgkung Trsi,"35,500"
+dev_receipt_00025.png,1Gls Es Teh Tawar,"7,000"
+dev_receipt_00025.png,Subtotal,"180,000"
+dev_receipt_00025.png,Service Charge,"9,000"
+dev_receipt_00025.png,Pb 1,"18,900"
+dev_receipt_00025.png,Total,"207,900"
+dev_receipt_00025.png,Total Item,7
+dev_receipt_00025.png,Total Qty,7
+dev_receipt_00026.png,x 5000,S000
+dev_receipt_00026.png,2x 4.000,8000
+dev_receipt_00026.png,1x 2000,2000
+dev_receipt_00026.png,Ix 14000,14000
+dev_receipt_00026.png,x 6000,6000
+dev_receipt_00026.png,Tota RA,35000
+dev_receipt_00027.png,"1 16,363","16,363"
+dev_receipt_00027.png,Jumlah Item,1
+dev_receipt_00027.png,Sub Total,"16,363"
+dev_receipt_00027.png,Pajak Resto,"1,636"
+dev_receipt_00027.png,Grand Total,"17,99"
+dev_receipt_00028.png,"1 12,000","12,000"
+dev_receipt_00028.png,"1 10,000","10,000"
+dev_receipt_00028.png,2 TOTAL,"22,000"
+dev_receipt_00028.png,CASH,"22,000"
+dev_receipt_00028.png,CHANGE,0
+dev_receipt_00030.png,1 REDBEAN BRE/D,"9,000"
+dev_receipt_00030.png,1 FRANKFRUT S/USAGE ROLL,"12,000"
+dev_receipt_00030.png,TOTAL,"21,000"
+dev_receipt_00030.png,CASH,"50,000"
+dev_receipt_00030.png,CHANGE,"29,000"
+dev_receipt_00031.png,1 PREIUN TOAST PAN BREAD,"24,000"
+dev_receipt_00031.png,TOTAL,"24,000"
+dev_receipt_00031.png,CASH,"24,000"
+dev_receipt_00031.png,CHANGE,0
+dev_receipt_00032.png,1 Nasi (MLY),6.000
+dev_receipt_00032.png,Subtotal,6.000
+dev_receipt_00032.png,TOTAL,6.000
+dev_receipt_00032.png,Go-Pay static QR,6.000
+dev_receipt_00033.png,1 1 1 1,1
+dev_receipt_00033.png,1 1 1 1 1,1
+dev_receipt_00033.png,TOTL,"57,500"
+dev_receipt_00033.png,GIFT50,"50,000"
+dev_receipt_00033.png,CASH,"7,500"
+dev_receipt_00034.png,1 GRILLED BABY POTATO (R,"50,500"
+dev_receipt_00034.png,1 TRUFFLE CREAM,"76,000"
+dev_receipt_00034.png,1 CARBONARA,"70,500"
+dev_receipt_00034.png,2 ORIGINAL BRENED TEA,"46,000"
+dev_receipt_00034.png,SUBTTL,"243,000"
+dev_receipt_00034.png,SVC CHG 6%,"14,580"
+dev_receipt_00034.png,PB1 10%,"25,758"
+dev_receipt_00034.png,TOTAL,"283,338"
+dev_receipt_00034.png,VISA,"283,338"
+dev_receipt_00035.png,PEPPER MEATBALL,"76,500"
+dev_receipt_00035.png,FORMANGGI PASTA,"82,500"
+dev_receipt_00035.png,1 GREEN TEA CRUMBLE,"56,000"
+dev_receipt_00035.png,2 ORIGINAL BREWED TEA,"46,000"
+dev_receipt_00035.png,SUBTTL,"261,000"
+dev_receipt_00035.png,SVC CHG 6%,"15,660"
+dev_receipt_00035.png,PB1 10%,"27,666"
+dev_receipt_00035.png,TOTAL,"304,326"
+dev_receipt_00036.png,3 Top,"17,272"
+dev_receipt_00036.png,1,1
+dev_receipt_00036.png,1,1
+dev_receipt_00036.png,1,1
+dev_receipt_00036.png,1,1
+dev_receipt_00037.png,Ice Lemon Tea,"13,636"
+dev_receipt_00037.png,Gyro PIatter - Regular,"50,000"
+dev_receipt_00037.png,Subtotal,"63,636"
+dev_receipt_00037.png,PB1-TAY Tax,"6,364"
+dev_receipt_00037.png,For Here Total,"70,000"
+dev_receipt_00037.png,Cash,"70,000"
+dev_receipt_00038.png,1,"20,000"
+dev_receipt_00038.png,TT,"20,000"
+dev_receipt_00038.png,TOTAL,"20,000"
+dev_receipt_00038.png,CASH,"100,000"
+dev_receipt_00038.png,CHANGE,"80,000"
+dev_receipt_00039.png,PKT GMR,"26,000"
+dev_receipt_00039.png,TERONG,"12,000"
+dev_receipt_00039.png,PARU,"23,000"
+dev_receipt_00039.png,SBL GR ATIAPLA,"20,000"
+dev_receipt_00039.png,ESTLE 330 L,"8,000"
+dev_receipt_00039.png,SUBTOTAL,"89,000"
+dev_receipt_00039.png,TAX 10%,"8,900"
+dev_receipt_00039.png,TOTAL,"97,900"
+dev_receipt_00039.png,CASH,"100,000"
+dev_receipt_00039.png,CHANGE,"2,100"
+dev_receipt_00040.png,Gojek Chicken 1,"95,000"
+dev_receipt_00040.png,Gojek Chicken 1,"180,000"
+dev_receipt_00040.png,Gojek French 1,"70,000"
+dev_receipt_00040.png,Sub Total,"345,000"
+dev_receipt_00040.png,Senice,0
+dev_receipt_00040.png,Tax,"34,500"
+dev_receipt_00040.png,Discount,0
+dev_receipt_00040.png,TOTAL,"2379,500"
+dev_receipt_00041.png,SCGCG JAPCHAE 1,150.000
+dev_receipt_00041.png,G0MNG GEAE ,"105,000"
+dev_receipt_00041.png,CHLLPAN CHEESE 1,"230,000"
+dev_receipt_00041.png,CREA TEOHK Po 0 1,"95,000"
+dev_receipt_00041.png,EL KEU 1,"120,000"
+dev_receipt_00041.png,CHA KKOT SAL 2,020000
+dev_receipt_00041.png, SA GEOP 2,"290,000"
+dev_receipt_00041.png,U SE0L 2,"390,000"
+dev_receipt_00041.png,U SAOM GeEDE ,0
+dev_receipt_00041.png,CE OOFFE TX 2,0
+dev_receipt_00041.png,ce BuAck COEEE ,0
+dev_receipt_00041.png,Sut Total,2000000
+dev_receipt_00041.png,Senice,"140,000"
+dev_receipt_00041.png,Tax,212400
+dev_receipt_00041.png,TOTAL,"2,362,4"
+dev_receipt_00042.png,1,9.000
+dev_receipt_00042.png,1,17.000
+dev_receipt_00042.png,1,17.000
+dev_receipt_00042.png,VSA,18B51
+dev_receipt_00043.png,ROTI UMNIL 17O,272.000
+dev_receipt_00043.png,PAPER BAG BESAR 1,6.000
+dev_receipt_00043.png,Total,28.000
+dev_receipt_00043.png,Cash,300.000
+dev_receipt_00043.png,Kembali,"22,000"
+dev_receipt_00043.png,Total P,171
+dev_receipt_00044.png,"1 16,363",16.363
+dev_receipt_00044.png,Jumlah Item,1
+dev_receipt_00044.png,Sub Total,16.363
+dev_receipt_00044.png,Pajak Resto,"1,636"
+dev_receipt_00044.png,Grand Total,"17,999"
+dev_receipt_00045.png,1 AOP Seafood,"85,000"
+dev_receipt_00045.png,1 Omurice Katsu Curry,"95,000"
+dev_receipt_00045.png,1 Earl Gra Tea,"35,000"
+dev_receipt_00045.png,1 Hot Tea,"25,000"
+dev_receipt_00045.png,SUBTOTAL,"240,000"
+dev_receipt_00045.png,Service,"21,600"
+dev_receipt_00045.png,PB1,"26,160"
+dev_receipt_00045.png,TOTAL,"287,760"
+dev_receipt_00046.png,"1 22,000","22,000"
+dev_receipt_00046.png,1 TOTAL,"22,000"
+dev_receipt_00047.png,1 Seeweed Chicken,"42,000"
+dev_receipt_00047.png,1  Segng,0
+dev_receipt_00047.png,TES: 1,"42,000"
+dev_receipt_00047.png,Total,"42,000"
+dev_receipt_00047.png,"Pey Cash 50,000 ChangA","8,000"
+dev_receipt_00048.png,1 5B 1 0R,"28,636"
+dev_receipt_00048.png,1 Chokocha Ft,"13,636"
+dev_receipt_00048.png,1 Bbo Bento,"13,636"
+dev_receipt_00048.png,Sub Total,"55,908"
+dev_receipt_00048.png,P.Rest 10 %,"5,592"
+dev_receipt_00048.png,Total,"61,500"
+dev_receipt_00048.png,Cash,"70,000"
+dev_receipt_00048.png,Kembali,"8,500"
+dev_receipt_00049.png,1x 52.000,52.000
+dev_receipt_00049.png,1x 22.000,22.000
+dev_receipt_00049.png,SubTTL,74.000
+dev_receipt_00049.png,TAX,7.400
+dev_receipt_00049.png,CASH,81.400
+dev_receipt_00050.png,2 CHOCOLATE ECLAIR,"26,000"
+dev_receipt_00050.png,TOTAL,"26,000"
+dev_receipt_00050.png,CASH,"26,000"
+dev_receipt_00050.png,CHANGE,0
+dev_receipt_00051.png,118 Round Wagyu (1gr),47.200
+dev_receipt_00051.png,1 Wagyu Rice Box,10.000
+dev_receipt_00051.png,Subtotal,57.200
+dev_receipt_00051.png,TOTAL,57.200
+dev_receipt_00051.png,BCA,57.200
+dev_receipt_00052.png,2 KENTHOIR 2,42.600
+dev_receipt_00052.png,2 KOL GORENG,6.000
+dev_receipt_00052.png,2 TEH MANIS,8.000
+dev_receipt_00052.png,Subtotal,56.000
+dev_receipt_00052.png,Total,56.600
+dev_receipt_00052.png,(ASH,56.000
+dev_receipt_00052.png,Kembalian,0
+dev_receipt_00053.png,1 Large 1,11.000
+dev_receipt_00053.png,1 *Rhum,0
+dev_receipt_00053.png,1 Pastry Keju,20.000
+dev_receipt_00053.png,1 *Ptastik kcl,0
+dev_receipt_00053.png,4 Total,31.000
+dev_receipt_00053.png,Bayar,40.000
+dev_receipt_00053.png,Kembali,9.000
+dev_receipt_00054.png,40.000 x1,40.000
+dev_receipt_00054.png,0 x1,0
+dev_receipt_00054.png,Total Item:,2
+dev_receipt_00054.png,Total.,40.000
+dev_receipt_00054.png,Tendered:,50.000
+dev_receipt_00054.png,Change:,10.000
+dev_receipt_00055.png,Cha Keaww L... x2,60.000
+dev_receipt_00055.png,Cha Keaw L... x2,60.000
+dev_receipt_00055.png,BCA PAY... (100%),60.000)
+dev_receipt_00055.png,Total,60.000
+dev_receipt_00055.png,EDC,60.000
+dev_receipt_00056.png,Thai Iced T..x1,20.000
+dev_receipt_00056.png,Subtotal,20.000
+dev_receipt_00056.png,Total,20.000
+dev_receipt_00056.png,Cash,20.000
+dev_receipt_00056.png,Chanee,0
+dev_receipt_00057.png,1 SEAFOOD MARINARA,"85,000"
+dev_receipt_00057.png,1 CREAMY MARINARA SALMON,85.500
+dev_receipt_00057.png,2 LYCHEE ICE TEA,77.000
+dev_receipt_00057.png,SUBTTL,"247,500"
+dev_receipt_00057.png,SUC CHG 6%,"14,850"
+dev_receipt_00057.png,PB1 10%,"26,235"
+dev_receipt_00057.png,TOTAL,"288,585"
+dev_receipt_00058.png,1 Viet Milk Coffee,25.000
+dev_receipt_00058.png,Subtotal,25.000
+dev_receipt_00058.png,Total,25.000
+dev_receipt_00058.png,CASH,25.000
+dev_receipt_00058.png,Kembalia,0
+dev_receipt_00059.png,1 XLB Org Pork10x,"78,000"
+dev_receipt_00059.png,1 Sicito Babi,"65,000"
+dev_receipt_00059.png,1 otplate Tahu,"58,000"
+dev_receipt_00059.png,1 DFFish Filet Garlc,"108,000"
+dev_receipt_00059.png,1 LVPork Belly,"88,000"
+dev_receipt_00059.png,1 Siew Mai,"38,800"
+dev_receipt_00059.png,5 KwanYin Cup,"50,000"
+dev_receipt_00059.png,1 Herballely,"38,000"
+dev_receipt_00059.png,1 OndeOmde,"38,000"
+dev_receipt_00059.png,TEMS: 13,"561,800"
+dev_receipt_00059.png,Semnbedbage,"42,135"
+dev_receipt_00059.png,PB1,"60,394"
+dev_receipt_00059.png,Total,"604,329"
+dev_receipt_00060.png,1 VANILLA CHOCO HEART CAKE,"180,000"
+dev_receipt_00060.png,TOTAL,"180,000"
+dev_receipt_00060.png,VISA CARD,"180,000"
+dev_receipt_00061.png,"1 4,500","4,500"
+dev_receipt_00061.png,"1 3,000","3,000"
+dev_receipt_00061.png,Sub Total,"7,500"
+dev_receipt_00061.png,Pajak Resto (10%),750
+dev_receipt_00061.png,Total Bayar,"8,250"
+dev_receipt_00061.png,Uang Bayar,"10,000"
+dev_receipt_00061.png,Free Kembalian,50
+dev_receipt_00061.png,Total Kembalian,"1,800"
+dev_receipt_00062.png,1 French Fries,"10,909"
+dev_receipt_00062.png,2 Cheese Burger,"36,364"
+dev_receipt_00062.png,1 Milo,9.091
+dev_receipt_00062.png,SUBTOTAL,"56,364"
+dev_receipt_00062.png,PB1,"5,636"
+dev_receipt_00062.png,TOTAL,"62,000"
+dev_receipt_00062.png,CASH,"100,000"
+dev_receipt_00062.png,Chnge,"38,000"
+dev_receipt_00063.png,ISI CAMMPUR 1 43.636,43.636
+dev_receipt_00063.png,A.MIERAL BOTOL 1 8.000,8.000
+dev_receipt_00063.png,TOTAL,"51,636"
+dev_receipt_00063.png,TAX 10.00 %,"5,164"
+dev_receipt_00063.png,GRANND TOTAL,"56,800"
+dev_receipt_00063.png,TUNAI,"110,000"
+dev_receipt_00063.png,KEMBALI,53.200
+dev_receipt_00064.png,1 HOLE WEAT PAN BREAD,"20,000"
+dev_receipt_00064.png,TOTAL,"20,000"
+dev_receipt_00064.png,CASH,"100,000"
+dev_receipt_00064.png,CHANGE,"80,000"
+dev_receipt_00065.png,BASO TAHU 1 43.636,43.636
+dev_receipt_00065.png,NASI PUTIH 1 6.000,6.000
+dev_receipt_00065.png,TOTAL,49.636
+dev_receipt_00065.png,TAX 10.00 %,4.964
+dev_receipt_00065.png,GRANND TOTAL,54.600
+dev_receipt_00065.png,TUNAI,60.100
+dev_receipt_00065.png,KEMBALI,5.500
+dev_receipt_00066.png,AIR MINERAL,"7,000"
+dev_receipt_00066.png,TL,"7,000"
+dev_receipt_00066.png,CASH,"7,000"
+dev_receipt_00067.png,1 PAKET BER2,"69,091"
+dev_receipt_00067.png,SUBTOTAL,"69,091"
+dev_receipt_00067.png,TAX,"6,909"
+dev_receipt_00067.png,TOTAL,"76,000"
+dev_receipt_00068.png,2X,"13,000"
+dev_receipt_00068.png,oney Mandarin,"26,000"
+dev_receipt_00068.png,TOTAL,"26,000"
+dev_receipt_00068.png,CASH,"30,000"
+dev_receipt_00068.png,CHANGE,"4,000"
+dev_receipt_00069.png,1 SOTOMBANAE,59.500
+dev_receipt_00069.png,1 GADOHGADO,34.500
+dev_receipt_00069.png,1 SOTO BETAI + NASI,57.500
+dev_receipt_00069.png,Subtotal,151.500
+dev_receipt_00069.png,Service Charge 5,7.575
+dev_receipt_00069.png,Pajak RESTO 10%,15.908
+dev_receipt_00069.png,3TOTAL,174.983
+dev_receipt_00070.png,1 1,1
+dev_receipt_00070.png,1 1,1
+dev_receipt_00070.png,1 1,1
+dev_receipt_00070.png,1 1 1,1
+dev_receipt_00070.png,1,1
+dev_receipt_00071.png,1 Dum Dum Thai Coffee,19.000
+dev_receipt_00071.png,1 Ice,1.000
+dev_receipt_00071.png,Subtotal,20.000
+dev_receipt_00071.png,TOTAL,20.000
+dev_receipt_00071.png,Cash,50.000
+dev_receipt_00071.png,Change Due,0.000
+dev_receipt_00072.png,1  g000,"19,000"
+dev_receipt_00072.png,1 2 7.000,"17,000"
+dev_receipt_00072.png,Su8TOTL,"36,000"
+dev_receipt_00072.png,GRANOTOTAL,"36,000"
+dev_receipt_00072.png,NASTER,4607
+dev_receipt_00073.png,ICED TT,"20,000"
+dev_receipt_00073.png,TOTAL,"20,000"
+dev_receipt_00073.png,CASH,"50,000"
+dev_receipt_00073.png,CHANGE,"30,000"
+dev_receipt_00074.png,1 @20.000,20.000
+dev_receipt_00074.png,SUB-TOTAL,20.000
+dev_receipt_00074.png,GRANOTOTAL,20.000
+dev_receipt_00074.png,1,1
+dev_receipt_00074.png,1,1
+dev_receipt_00075.png,2 KFC Winger HC,1
+dev_receipt_00075.png,1 Ori Bento,1
+dev_receipt_00075.png,1 Mango Float,1
+dev_receipt_00075.png,1 F.Wngr GES-HC,1
+dev_receipt_00075.png,1 CHARGE TA,1
+dev_receipt_00075.png,Sub Total,1
+dev_receipt_00075.png,P.Rest 10 %,1
+dev_receipt_00075.png,Total,1
+dev_receipt_00075.png,Cash,1
+dev_receipt_00075.png,Kembali,1
+dev_receipt_00076.png,1 1,1
+dev_receipt_00076.png,1,1
+dev_receipt_00076.png,1 1 1,1
+dev_receipt_00076.png,1,1
+dev_receipt_00076.png,1,1
+dev_receipt_00076.png,1 1,1
+dev_receipt_00077.png,*2 Cheese Tart,P 500.00
+dev_receipt_00077.png,Subtotal:,R 5800.00
+dev_receipt_00077.png,Total Tax 1ncluded:,Rp522.
+dev_receipt_00077.png,Total:,96800.00
+dev_receipt_00077.png,1 1 1,1
+dev_receipt_00077.png,1 1,1
+dev_receipt_00078.png,2 Mineral Water,18.000
+dev_receipt_00078.png,1 Teh Tawar Dingin,11.000
+dev_receipt_00078.png,2 Soto Betawi,116.000
+dev_receipt_00078.png,1 NASI PUTIH,9.000
+dev_receipt_00078.png,Subtotal 154,000
+dev_receipt_00078.png,Serui Charge 5/ 7,700
+dev_receipt_00078.png,Pajak Rest 10% 16,170
+dev_receipt_00078.png,6 Total,177.870
+dev_receipt_00079.png,1 Crab Stick,9.000
+dev_receipt_00079.png,1 Bakso Lobster,10.000
+dev_receipt_00079.png,1 Sawwi Putih,7.000
+dev_receipt_00079.png,1 Jamur Enoki,8.000
+dev_receipt_00079.png,1 Jamur Kuping,8.000
+dev_receipt_00079.png,12000,24.000
+dev_receipt_00079.png,1 Nasi (MLY),6.000
+dev_receipt_00079.png,Subtotal,72.000
+dev_receipt_00079.png,TOTAL,72.000
+dev_receipt_00079.png,BCA,72.000
+dev_receipt_00080.png,1 Sate Padang,25.000
+dev_receipt_00080.png,1 Total,25.000
+dev_receipt_00080.png,Cash,25.000
+dev_receipt_00081.png,1 SURIMI,"29,091"
+dev_receipt_00081.png,1 CREAM CHX CLS FTC,"42,727"
+dev_receipt_00081.png,1 MIX 4FUN CHDCOLATE,"19,091"
+dev_receipt_00081.png,1 GREE ITSODA PITCHER,"60,9709"
+dev_receipt_00081.png,1 SCR GRILLED STEAK,"99,091"
+dev_receipt_00081.png,SUBTOTAL,"250,909"
+dev_receipt_00081.png,TAX,"25,091"
+dev_receipt_00081.png,TOTAL,"276,000"
+dev_receipt_00082.png,1 PEARL CHOCO TEA,17.000
+dev_receipt_00082.png,1 GREEN TEA LYCHEE,18.000
+dev_receipt_00082.png,2 TUTUP SEAL,0
+dev_receipt_00082.png,2 CUP 14 OZ,0
+dev_receipt_00082.png,NET Sales,35.000
+dev_receipt_00082.png,6 Total,35.000
+dev_receipt_00082.png,Bayar,100.000
+dev_receipt_00082.png,Kembali,65.000
+dev_receipt_00083.png,"1X S-Milk tea @17,000","17,000"
+dev_receipt_00083.png,PB1:,0
+dev_receipt_00083.png,Subtotal:,"17,000"
+dev_receipt_00083.png,Total:,"17,000"
+dev_receipt_00083.png,Cash:,"17,000"
+dev_receipt_00083.png,CHANGE:,0
+dev_receipt_00084.png,1 x HAZELNUT CHOCOMT (R),"24,000"
+dev_receipt_00084.png,PEARL (R),"4,000"
+dev_receipt_00084.png,1 x HAZELNUT CHOCO MT (R),"24,000"
+dev_receipt_00084.png,SUB TOTAL,"52,000"
+dev_receipt_00084.png,TOTAL SALES,"52,000"
+dev_receipt_00084.png,TOTAL ITEMS,2
+dev_receipt_00084.png,DEBIT BCA,"52,000"
+dev_receipt_00085.png,1 Peanut & Cheese,"13,636"
+dev_receipt_00085.png,SubTotal:,"13,636"
+dev_receipt_00085.png,PB1:,"1,364"
+dev_receipt_00085.png,Total:,"15,000"
+dev_receipt_00085.png,cash:,"20,000"
+dev_receipt_00085.png,Change:,"5,000"
+dev_receipt_00086.png,"1 26,000","26,"
+dev_receipt_00086.png,SUB TOTAL,"26,"
+dev_receipt_00086.png,GRANODTOTAL,"26,"
+dev_receipt_00086.png,OO0176,26
+dev_receipt_00086.png,CHANGE DUE,1
+dev_receipt_00087.png,"1X M-Passion Fruit Mac @29,000","29,000"
+dev_receipt_00087.png,PB1:,0
+dev_receipt_00087.png,Subtotal:,"29,000"
+dev_receipt_00087.png,Total:,"29,000"
+dev_receipt_00087.png,Cash:,"30,000"
+dev_receipt_00087.png,CHANGE:,"1,000"
+dev_receipt_00088.png,1,1
+dev_receipt_00088.png,1 1,1
+dev_receipt_00088.png,1 1,1
+dev_receipt_00088.png,1 1,1
+dev_receipt_00088.png,1,1
+dev_receipt_00088.png,1 1,1
+dev_receipt_00088.png,1,1
+dev_receipt_00088.png,1 1,1
+dev_receipt_00088.png,1 1,1
+dev_receipt_00088.png,1,1
+dev_receipt_00088.png,1 1 1,1
+dev_receipt_00088.png,1,1
+dev_receipt_00088.png,1 1,1
+dev_receipt_00088.png,1 1,1
+dev_receipt_00088.png,1,1
+dev_receipt_00088.png,1 1,1
+dev_receipt_00088.png,1,1
+dev_receipt_00088.png,1,1
+dev_receipt_00089.png,29.000 x1,29.000
+dev_receipt_00089.png,0 x1,0
+dev_receipt_00089.png,Total Item:,2
+dev_receipt_00089.png,Total.,29.000
+dev_receipt_00089.png,Temdered:,100.000
+dev_receipt_00089.png,Change:,71.000
+dev_receipt_00090.png,REGULAR 2 35000.00,70000.00
+dev_receipt_00090.png,Total Due,70000.00
+dev_receipt_00090.png,OFFLINE PROMO,70000.00
+dev_receipt_00090.png,Change,0.00
+dev_receipt_00091.png,K7 1217,"39,091"
+dev_receipt_00091.png,ADD CHICKEN BOX,909
+dev_receipt_00091.png,Subtotal,"40,000"
+dev_receipt_00091.png,PB1 (10%),"4,000"
+dev_receipt_00091.png,1,1
+dev_receipt_00091.png,1,1
+dev_receipt_00091.png,1,1
+dev_receipt_00092.png,1 <FC Winger HC,"20,000"
+dev_receipt_00092.png,1 CHARGE TA,909
+dev_receipt_00092.png,Sub Total,"20,909"
+dev_receipt_00092.png,P.Rest 10 %,"2,091"
+dev_receipt_00092.png,Total,"23,000"
+dev_receipt_00092.png,Cash,"25,000"
+dev_receipt_00092.png,Kembali,"2,000"
+dev_receipt_00093.png," PANET 6,",1
+dev_receipt_00093.png," BRE, 1 1",1
+dev_receipt_00093.png,"1 BRE, 1 1",1
+dev_receipt_00093.png," CA, 1",1
+dev_receipt_00093.png,2 LIM 1,1
+dev_receipt_00093.png, LIM 1,1
+dev_receipt_00093.png,% PP 1 1,1
+dev_receipt_00093.png, PP 1 1,1
+dev_receipt_00093.png, P 1,1
+dev_receipt_00093.png,"% S4P6, 1",1
+dev_receipt_00093.png,0 420T 1 1,1
+dev_receipt_00093.png,CHIC 1,1
+dev_receipt_00093.png,1,1
+dev_receipt_00093.png,1,1
+dev_receipt_00094.png,Sscampi,69.000
+dev_receipt_00094.png,SUB TOTAL,0
+dev_receipt_00094.png,DSCOUNT,3.795
+dev_receipt_00094.png,ROUNDNG,+25
+dev_receipt_00094.png,GRAN D TOTAL,80.100
+dev_receipt_00094.png,TADA EGIFT,80.100
+dev_receipt_00094.png,CHANGES,0
+dev_receipt_00095.png,1 SAYAP,"13,636"
+dev_receipt_00095.png,1 PAHA BAUAH,"13,636"
+dev_receipt_00095.png,Subtotal,"27,272"
+dev_receipt_00095.png,P. Resto 10%,"2,700"
+dev_receipt_00095.png,2 Total,"30,000"
+dev_receipt_00095.png,Tendered,"50,000"
+dev_receipt_00095.png,Kembali,"20,000"
+dev_receipt_00096.png,1 Choco Chuese,"-2,345"
+dev_receipt_00096.png,Total:,"12,750"
+dev_receipt_00096.png,cash:,"12,750"
+dev_receipt_00097.png,(L),25.000
+dev_receipt_00097.png,CASH,30.000
+dev_receipt_00097.png,CHANGED,5.000
+dev_receipt_00098.png,1 Hulk Topper Package,100.000
+dev_receipt_00098.png,CASH,100.000
+dev_receipt_00098.png,CHANGED,0
+dev_receipt_00099.png,Gant Souid x1 Rp,39.000
+dev_receipt_00099.png,BSSpioy Lewel- Btenme Hot Rp,0
+dev_receipt_00099.png,AKFaounil 6 PepAer Rp,0
+dev_receipt_00099.png,Subtotal Rp,39.000
+dev_receipt_00099.png,Total Rp,39.000
+dev_receipt_00099.png,Cash Rp,50.000

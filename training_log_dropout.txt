@@ -1,2 +1,19 @@
 [2026-01-27 14:10:32.287481] Epoch 1/80 - Train loss: 0.6270
 [2026-01-27 14:10:38.402080] Epoch 1/80 - Validation loss: 1.5773
+[2026-01-27 14:11:29.434374] Epoch 2/80 - Train loss: 0.6029
+[2026-01-27 14:11:34.409160] Epoch 2/80 - Validation loss: 1.6138
+[2026-01-27 14:12:19.209972] Epoch 3/80 - Train loss: 0.5814
+[2026-01-27 14:12:24.005305] Epoch 3/80 - Validation loss: 1.5932
+[2026-01-27 14:13:11.639051] Epoch 4/80 - Train loss: 0.5764
+[2026-01-27 14:13:16.490456] Epoch 4/80 - Validation loss: 1.5531
+[2026-01-27 14:13:59.802587] Epoch 5/80 - Train loss: 0.5653
+[2026-01-27 14:14:04.324727] Epoch 5/80 - Validation loss: 1.6013
+[2026-01-27 14:14:46.628378] Epoch 6/80 - Train loss: 0.5525
+[2026-01-27 14:14:51.207832] Epoch 6/80 - Validation loss: 1.6087
+[2026-01-27 14:15:34.586642] Epoch 7/80 - Train loss: 0.5409
+[2026-01-27 14:15:39.242966] Epoch 7/80 - Validation loss: 1.5887
+[2026-01-27 14:16:21.519760] Epoch 8/80 - Train loss: 0.5314
+[2026-01-27 14:16:26.082547] Epoch 8/80 - Validation loss: 1.5715
+[2026-01-27 14:17:08.019074] Epoch 9/80 - Train loss: 0.5227
+[2026-01-27 14:17:12.532269] Epoch 9/80 - Validation loss: 1.6075
+[2026-01-27 14:17:12.532709] Early stopping triggered at epoch 9 after 5 epochs without improvement.

@@ -440,59 +440,59 @@ def evaluate_receipts_to_dataframe(
 
 if __name__ == "__main__":
     pass
-    # df_dev = receipts_to_dataframe(
-    #     model_path="crnn_weights_opt.pth",
-    #     vocab_file="data/filename_to_word_files.json",
-    #     bboxes_file="data/preprocessed_bboxes.json",
-    #     word_labels_file="data/filename_to_word_files.json",
-    #     cropped_words_dir="data/cropped_words",
-    #     device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-    #     y_margin=20,
-    #     verbose=True
-    # )
-    # print(df_dev.head(20))
-    # print(f"\nTotal rows: {len(df_dev)}")
-    
-    # # save to CSV
-    # df_dev.to_csv("results/dev_receipts_object_amounts.csv", index=False)
-    
-    # df_test = receipts_to_dataframe(
-    #     model_path="crnn_weights_opt.pth",
-    #     vocab_file="data/filename_to_word_files.json",  # Use TRAINING vocab to match model
-    #     bboxes_file="data/preprocessed_bboxes_test.json",
-    #     word_labels_file="data/filename_to_word_files_test.json",
-    #     cropped_words_dir="data/cropped_words_test",
-    #     device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-    #     y_margin=20,
-    #     verbose=True
-    # )
-    # print(df_test.head(20))
-    # print(f"\nTotal rows: {len(df_test)}")
-    
-    # # save to CSV
-    # df_test.to_csv("results/test_receipts_object_amounts.csv", index=False)
-    
-    
-    df_eval = evaluate_receipts_to_dataframe(
-        model_path="crnn_weights_opt.pth",
+    df_dev = receipts_to_dataframe(
+        model_path="crnn_weights_dropout.pth",
         vocab_file="data/filename_to_word_files.json",
+        bboxes_file="data/preprocessed_bboxes.json",
         word_labels_file="data/filename_to_word_files.json",
+        cropped_words_dir="data/cropped_words",
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+        y_margin=20,
         verbose=True
     )
-    print(df_eval.tail(10))
+    print(df_dev.head(20))
+    print(f"\nTotal rows: {len(df_dev)}")
     
     # save to CSV
-    df_eval.to_csv("results/receipts_evaluation_dev.csv", index=False)
+    df_dev.to_csv("results/dev_receipts_object_amounts_dropout.csv", index=False)
     
-    df_eval_test = evaluate_receipts_to_dataframe(
-        model_path="crnn_weights_opt.pth",
-        vocab_file="data/filename_to_word_files.json",
+    df_test = receipts_to_dataframe(
+        model_path="crnn_weights_dropout.pth",
+        vocab_file="data/filename_to_word_files.json",  # Use TRAINING vocab to match model
+        bboxes_file="data/preprocessed_bboxes_test.json",
         word_labels_file="data/filename_to_word_files_test.json",
+        cropped_words_dir="data/cropped_words_test",
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+        y_margin=20,
         verbose=True
     )
-    print(df_eval_test.tail(10))
+    print(df_test.head(20))
+    print(f"\nTotal rows: {len(df_test)}")
     
     # save to CSV
-    df_eval_test.to_csv("results/receipts_evaluation_test.csv", index=False)
+    df_test.to_csv("results/test_receipts_object_amounts_dropout.csv", index=False)
+    
+    
+    # df_eval = evaluate_receipts_to_dataframe(
+    #     model_path="crnn_weights_dropout.pth",
+    #     vocab_file="data/filename_to_word_files.json",
+    #     word_labels_file="data/filename_to_word_files.json",
+    #     verbose=True
+    # )
+    # print(df_eval.tail(10))
+    
+    # # save to CSV
+    # df_eval.to_csv("results/receipts_evaluation_dev_dropout.csv", index=False)
+    
+    # df_eval_test = evaluate_receipts_to_dataframe(
+    #     model_path="crnn_weights_dropout.pth",
+    #     vocab_file="data/filename_to_word_files.json",
+    #     word_labels_file="data/filename_to_word_files_test.json",
+    #     verbose=True
+    # )
+    # print(df_eval_test.tail(10))
+    
+    # # save to CSV
+    # df_eval_test.to_csv("results/receipts_evaluation_test_dropout.csv", index=False)
     
     
